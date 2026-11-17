@@ -3,8 +3,8 @@
 // Replaces the old Flutter template counter test: MyApp now takes the
 // loaded SettingsStore and ProgressStore (F0), and there is no counter
 // in the app any more.
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:speakmind/main.dart';
