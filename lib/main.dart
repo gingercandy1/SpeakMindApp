@@ -1,34 +1,28 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:speakmind/settings.dart';
+import 'package:speakmind/progress.dart';
+import 'package:speakmind/theme.dart';
+import 'package:speakmind/pages/home_page.dart';
 
-import 'pages/practice_page.dart';
-import 'settings.dart';
-
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final settings = await SettingsStore.load();
-  runApp(SpeakMindApp(settings: settings));
+  final store = await SettingsStore.load();
+  final progress = await ProgressStore.load();
+  runApp(MyApp(settings: store, progress: progress));
 }
 
-class SpeakMindApp extends StatelessWidget {
-  const SpeakMindApp({super.key, required this.settings});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key, required this.settings, required this.progress});
 
   final SettingsStore settings;
-
-  static const _seed = Color(0xFF3949AB);
+  final ProgressStore progress;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SpeakMind',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: _seed)),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _seed,
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: PracticePage(settings: settings),
+      theme: speakMindTheme(),
+      home: HomePage(settings: settings, progress: progress),
     );
   }
 }
