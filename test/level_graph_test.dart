@@ -50,7 +50,7 @@ void main() {
       expect(graph.countByKind(LevelKind.hidden), 16);
       for (final level in graph.levels) {
         if (level.next != null) {
-          expect(graph.levelById(level.next), isNotNull,
+          expect(graph.levelById(level.next!), isNotNull,
               reason: '${level.id} next -> ${level.next}');
         }
         for (final branch in level.branches ?? const <LevelBranch>[]) {
@@ -63,7 +63,7 @@ void main() {
         }
         final trigger = level.hiddenTrigger;
         if (trigger?.level != null) {
-          expect(graph.levelById(trigger!.level), isNotNull,
+          expect(graph.levelById(trigger!.level!), isNotNull,
               reason: '${level.id} trigger -> ${trigger.level}');
         }
       }

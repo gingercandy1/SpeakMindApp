@@ -88,16 +88,17 @@ class ApiClient {
     String? npcPrompt,
   }) {
     return _guard(() async {
+      final payload = <String, dynamic>{
+        'language': language,
+        'messages': [for (final m in messages) m.toJson()],
+      };
+      if (levelId != null) payload['level_id'] = levelId;
+      if (npcPrompt != null) payload['npc_prompt'] = npcPrompt;
       final response = await _client
           .post(
             _uri('/chat'),
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({
-              'language': language,
-              'messages': [for (final m in messages) m.toJson()],
-              if (levelId != null) 'level_id': levelId,
-              if (npcPrompt != null) 'npc_prompt': npcPrompt,
-            }),
+            body: jsonEncode(payload),
           )
           .timeout(const Duration(seconds: 90));
       final body = utf8.decode(response.bodyBytes);

@@ -250,7 +250,7 @@ class _LevelPageState extends State<LevelPage> {
     Future<void> Function(String path) onDone,
   ) async {
     if (_recPhase != _RecPhase.idle) return;
-    if (!await _recorder.hasPermission()) {
+    if (!await _recorder.hasPermission) {
       setState(() => _error = '需要麦克风权限才能录音，请在系统设置里允许');
       return;
     }

@@ -1,30 +1,28 @@
-// This is a basic Flutter widget test.
+// Smoke test: the app boots to the world map tab.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+// Replaces the old Flutter template counter test: MyApp now takes the
+// loaded SettingsStore and ProgressStore (F0), and there is no counter
+// in the app any more.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:speakmind/main.dart';
+import 'package:speakmind/progress.dart';
+import 'package:speakmind/settings.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('app boots to the map tab', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    final progress = await ProgressStore.load();
+    final settings = await SettingsStore.load();
+    await tester.pumpWidget(MyApp(settings: settings, progress: progress));
+    // First pump shows the loading spinner while LevelGraph.load() runs;
+    // the next pump renders the loaded home shell with the bottom nav.
     await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('地图'), findsOneWidget);
+    expect(find.text('邮票册'), findsOneWidget);
+    expect(find.text('练习场'), findsOneWidget);
+    expect(find.text('我的'), findsOneWidget);
   });
 }
