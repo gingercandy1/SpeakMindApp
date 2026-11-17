@@ -68,6 +68,8 @@
 	</array>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>SpeakMind records your voice to score your pronunciation.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>SpeakMind uses speech recognition to turn your spoken chat messages into text.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

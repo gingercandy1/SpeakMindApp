@@ -4,10 +4,15 @@ import '../api.dart';
 import '../models.dart';
 import '../settings.dart';
 import '../speech.dart';
+import '../voice_input.dart';
 
 /// Free conversation with an AI partner in the language being practised.
 ///
 /// The server holds the AI key and the prompt; the app sends the history.
+/// Voice input uses the phone's own speech recognition (see
+/// `lib/voice_input.dart`): tap the mic, speak, tap stop, correct the
+/// transcript if needed, then send. The reply is still read aloud with
+/// the server's Piper voice when one is available.
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key, required this.settings});
 
@@ -21,6 +26,7 @@ class _ChatPageState extends State<ChatPage> {
   /// Fixed for the life of the page: switching language starts a new chat.
   late final AppLanguage _language = widget.settings.language;
   late final Speaker _speaker = Speaker(widget.settings);
+  final _voice = VoiceInput();
   final _input = TextEditingController();
   final _scroll = ScrollController();
 
@@ -34,10 +40,25 @@ class _ChatPageState extends State<ChatPage> {
   ];
   bool _sending = false;
   bool _autoSpeak = true;
+  bool _listening = false;
+  bool _voiceAvailable = false;
   String? _error;
 
   @override
+  void initState() {
+    super.initState();
+    _initVoice();
+  }
+
+  Future<void> _initVoice() async {
+    final available = await _voice.init();
+    if (!mounted) return;
+    setState(() => _voiceAvailable = available);
+  }
+
+  @override
   void dispose() {
+    _voice.cancel();
     _input.dispose();
     _scroll.dispose();
     _speaker.dispose();
@@ -76,6 +97,40 @@ class _ChatPageState extends State<ChatPage> {
       });
     }
     _scrollToEnd();
+  }
+
+  /// Mic toggle: start listening, or stop and keep the transcript in the
+  /// input field for the user to correct before sending.
+  Future<void> _toggleVoice() async {
+    if (_sending) return;
+    if (_listening) {
+      await _voice.stop();
+      if (mounted) setState(() => _listening = false);
+      return;
+    }
+    if (!_voiceAvailable) {
+      setState(() => _error = '这台设备不支持语音识别，请直接打字');
+      return;
+    }
+    // Stop the partner's voice first, so it is not picked up as input.
+    await _speaker.stop();
+    final started = await _voice.start(
+      localeId: _language.code == 'es' ? 'es_ES' : 'en_US',
+      onResult: (text, _) {
+        if (!mounted) return;
+        // Keep the caret at the end while the transcript grows.
+        _input.value = TextEditingValue(
+          text: text,
+          selection: TextSelection.collapsed(offset: text.length),
+        );
+      },
+    );
+    if (!mounted) return;
+    setState(() {
+      _listening = started;
+      if (started) _error = null;
+      if (!started) _error = '没能开始语音识别，请再试一次';
+    });
   }
 
   void _scrollToEnd() {
@@ -127,6 +182,35 @@ class _ChatPageState extends State<ChatPage> {
                 },
               ),
             ),
+            if (_listening)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: theme.colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          '正在听… 说完点麦克风停止，可改一下再发送',
+                          style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             if (error != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -178,6 +262,15 @@ class _ChatPageState extends State<ChatPage> {
                         isDense: true,
                         counterText: '',
                       ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton.filledTonal(
+                    tooltip: _listening ? '停止语音' : '语音输入',
+                    onPressed: _sending ? null : _toggleVoice,
+                    icon: Icon(
+                      _listening ? Icons.stop_rounded : Icons.mic,
+                      color: _listening ? theme.colorScheme.error : null,
                     ),
                   ),
                   const SizedBox(width: 4),
