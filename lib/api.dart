@@ -75,9 +75,17 @@ class ApiClient {
   }
 
   /// One turn of conversation: sends the history, returns the partner's reply.
+  ///
+  /// [levelId] and [npcPrompt] follow the levels dev doc §8 contract: when
+  /// the server implements them it uses them to role-play the level's NPC.
+  /// The current server ignores unknown fields, so sending them is harmless
+  /// and the dialogue still works (the NPC's opening line is sent as the
+  /// first assistant message by the level page).
   Future<ChatReply> chat({
     required List<ChatMessage> messages,
     required String language,
+    String? levelId,
+    String? npcPrompt,
   }) {
     return _guard(() async {
       final response = await _client
@@ -87,6 +95,8 @@ class ApiClient {
             body: jsonEncode({
               'language': language,
               'messages': [for (final m in messages) m.toJson()],
+              if (levelId != null) 'level_id': levelId,
+              if (npcPrompt != null) 'npc_prompt': npcPrompt,
             }),
           )
           .timeout(const Duration(seconds: 90));

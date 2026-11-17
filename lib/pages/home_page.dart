@@ -47,7 +47,11 @@ class _HomePageState extends State<HomePage> {
         }
         final graph = snapshot.data!;
         final pages = <Widget>[
-          MapPage(graph: graph, progress: widget.progress),
+          MapPage(
+            graph: graph,
+            progress: widget.progress,
+            settings: widget.settings,
+          ),
           StampsPage(graph: graph, progress: widget.progress),
           PracticePage(settings: widget.settings),
           ProfilePage(

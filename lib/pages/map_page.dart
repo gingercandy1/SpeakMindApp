@@ -5,21 +5,30 @@
 /// discovered hidden nodes as gold stars. Undiscovered worlds show fog
 /// (name visible, nodes hidden); undiscovered hidden nodes show nothing.
 /// Lock/unlock state comes from [ProgressStore]. Tapping an unlocked node
-/// opens the level placeholder page; tapping a locked node explains why.
+/// opens the level page; tapping a locked node explains why.
 library;
 
 import 'package:material_ui/material_ui.dart';
 
 import '../levels.dart';
 import '../progress.dart';
+import '../settings.dart';
 import '../theme.dart';
 import 'level_page.dart';
 
 class MapPage extends StatefulWidget {
-  const MapPage({super.key, required this.graph, required this.progress});
+  const MapPage({
+    super.key,
+    required this.graph,
+    required this.progress,
+    required this.settings,
+  });
 
   final LevelGraph graph;
   final ProgressStore progress;
+
+  /// Passed through to the level page (server URL + voices).
+  final SettingsStore settings;
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -49,6 +58,7 @@ class _MapPageState extends State<MapPage> {
           node: node,
           graph: widget.graph,
           progress: widget.progress,
+          settings: widget.settings,
         ),
       ),
     );
