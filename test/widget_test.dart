@@ -17,10 +17,14 @@ void main() {
     final progress = await ProgressStore.load();
     final settings = await SettingsStore.load();
     await tester.pumpWidget(MyApp(settings: settings, progress: progress));
-    // First pump shows the loading spinner while LevelGraph.load() runs;
-    // the next pump renders the loaded home shell with the bottom nav.
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
+    // The home shell loads the level graph from assets first, so the
+    // map is not there on the first frame. Keep pumping until the
+    // bottom nav appears (up to ~2s of fake time); a real load failure
+    // still fails the test at the expects below.
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+      if (find.byType(BottomNavigationBar).evaluate().isNotEmpty) break;
+    }
     // Do not assert on the nav labels' text: IndexedStack builds all four
     // tabs at once, and StampsPage/ProfilePage reuse '邮票册'/'我的' as
     // their AppBar titles, so those strings appear twice on screen.
