@@ -14,18 +14,37 @@ import 'profile_page.dart';
 import 'stamps_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.settings, required this.progress});
+  const HomePage({
+    super.key,
+    required this.settings,
+    required this.progress,
+    this.graph,
+  });
 
   final SettingsStore settings;
   final ProgressStore progress;
+
+  /// Preloaded graph. When null (the app's normal path) the graph is
+  /// loaded from assets/levels_es.json. Widget tests pass a graph
+  /// loaded with rootBundle so they don't depend on the async load
+  /// completing inside a pumped frame.
+  final LevelGraph? graph;
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  late final Future<LevelGraph> _graph = LevelGraph.load();
+  late final Future<LevelGraph> _graph;
   int _tab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _graph = widget.graph != null
+        ? Future<LevelGraph>.value(widget.graph!)
+        : LevelGraph.load();
+  }
 
   @override
   Widget build(BuildContext context) {
