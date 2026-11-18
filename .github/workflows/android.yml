@@ -47,6 +47,16 @@ jobs:
       - name: Run tests
         run: flutter test
 
+      - name: Install Android NDK
+        run: |
+          for i in 1 2 3; do
+            if yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "ndk;28.2.13676358"; then
+              break
+            fi
+            echo "NDK install attempt $i failed, retrying in 30s..."
+            sleep 30
+          done
+
       - name: Build release APK
         run: flutter build apk --release
 
