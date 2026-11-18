@@ -8,7 +8,15 @@
 // pumping the whole MyApp and waiting for its FutureBuilder to load the
 // graph from assets never completed in the CI widget-test environment
 // (the bottom nav never appeared after 20 pumped frames), even though
-// the same load works when awaited directly in a test.
+// the same load works when awaited directly in a plain test.
+//
+// Root cause (verified locally with Flutter 3.50.0): a testWidgets body
+// runs in a FakeAsync zone, and awaiting rootBundle.loadString there
+// never completes — not even after many pumps. The same call works in a
+// plain test() and inside tester.runAsync(), which runs the callback in
+// the real async zone. So the preload goes through runAsync; the
+// production path (HomePage loading from assets via FutureBuilder) is
+// unaffected — on a real device the engine serves the asset normally.
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -27,10 +35,12 @@ void main() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     final progress = await ProgressStore.load();
     final settings = await SettingsStore.load();
-    final graph = LevelGraph.fromJson(
-      jsonDecode(await rootBundle.loadString('assets/levels_es.json'))
-          as Map<String, dynamic>,
-    );
+    final graph = (await tester.runAsync(() async {
+      final raw = await rootBundle.loadString('assets/levels_es.json');
+      return LevelGraph.fromJson(
+        jsonDecode(raw) as Map<String, dynamic>,
+      );
+    }))!;
     await tester.pumpWidget(
       MaterialApp(
         theme: speakMindTheme(),
