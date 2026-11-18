@@ -4,7 +4,7 @@
 /// * 场景明信片 (30): one per finished branch route (14) and hidden level
 ///   (16). Tapping an earned postcard shows its three authentic phrases
 ///   on the back, each playable with TTS (明信片回听, F4).
-/// * Brasa 贴纸 (18): achievements. Unearned ones show only a dashed
+/// * Chispa 贴纸 (18): achievements. Unearned ones show only a dashed
 ///   silhouette and their condition — hidden postcards never reveal
 ///   their name before they are earned.
 library;
@@ -202,7 +202,7 @@ class _StampsPageState extends State<StampsPage> {
           ),
           const SizedBox(height: 20),
           _SectionTitle(
-            title: 'Brasa 贴纸',
+            title: 'Chispa 贴纸',
             count: '${earnedStickers.length} / ${stickerCatalog.length}',
           ),
           const SizedBox(height: 8),

@@ -1,4 +1,4 @@
-/// F2: stamps, postcards and Brasa stickers (pure Dart, no Flutter).
+/// F2: stamps, postcards and Chispa stickers (pure Dart, no Flutter).
 ///
 /// Rules (final planning doc p.6):
 /// * World stamp (8): completing a world's Boss level (X-10).
@@ -6,7 +6,7 @@
 ///   level. The doc says 24 postcards; the graph has 14 routes + 16 hidden
 ///   levels = 30 postcards, so the book holds 30 — the doc's 24 does not
 ///   reconcile with 42 branch + 16 hidden levels.
-/// * Brasa sticker (18): achievements — firsts, streaks, totals.
+/// * Chispa sticker (18): achievements — firsts, streaks, totals.
 ///
 /// Everything here is computed from progress state, so nothing extra needs
 /// storing except the counters ProgressStore keeps (zero-hint clears,
@@ -115,7 +115,7 @@ Postcard? postcardDetails(String id, LevelGraph graph) {
   return null;
 }
 
-/// One Brasa sticker: an achievement with a name and how to earn it.
+/// One Chispa sticker: an achievement with a name and how to earn it.
 class Sticker {
   const Sticker({
     required this.id,

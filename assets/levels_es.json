@@ -3794,7 +3794,7 @@
         "Ahora enséñame tú el paso a mí. — 现在换你教我这个舞步。"
       ],
       "npc_prompt": "Eres Sofía, una empleada de librería de 29 años de Buenos Aires. Tu muletilla es «¡Qué bueno!». Hoy estás en una pista de tango vacía y el estudiante tiene que enseñarte a ti los pasos, al revés, como si tú fueras la alumna. Haz preguntas cuando no entiendas un paso y equivócate a propósito una vez para que te corrija. Habla con frases de 10 a 15 palabras y un tono juguetón. Tu objetivo en esta conversación: aprender los pasos de tango que te enseña el estudiante en 4 o 5 turnos. Solo español, sin chino.",
-      "task": "把探戈舞步反过来教给 Sofía 和 Brasa，讲清每一步的方向和节奏。",
+      "task": "把探戈舞步反过来教给 Sofía 和 Chispa，讲清每一步的方向和节奏。",
       "task_rubric": "讲清至少 3 个舞步的方向和顺序即达成；指令清晰、能纠正对方的错误判出色。",
       "next": null,
       "branches": null,
@@ -3805,7 +3805,7 @@
       },
       "content_todo": false,
       "dialogue_opening": "¡Qué bueno! La pista es nuestra. Hoy me enseñas tú: ¿cómo era el primer paso?",
-      "intro": "舞池空无一人，音乐还没响。Sofía 今天反过来当学生：把探戈的口令倒着教 Brasa 一遍，看你是不是真记住了。",
+      "intro": "舞池空无一人，音乐还没响。Sofía 今天反过来当学生：把探戈的口令倒着教 Chispa 一遍，看你是不是真记住了。",
       "challenge_prompt": "变式挑战：教朋友一个简单的动作，只用两句话讲清。",
       "challenge_sentence": "Primero levanta el brazo, después da un paso a la derecha. — 先抬起手臂，然后向右迈一步。"
     },

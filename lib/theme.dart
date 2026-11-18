@@ -39,9 +39,9 @@ abstract class SpeakMindColors {
   /// Dark-mode card surface.
   static const Color darkCard = Color(0xFF223129);
 
-  /// Brasa's speech / challenge card: warm yellow in light mode, dark
+  /// Chispa's speech / challenge card: warm yellow in light mode, dark
   /// teal container in dark mode. Use with `Theme.of(context).brightness`.
-  static Color brasaCard(Brightness brightness) =>
+  static Color chispaCard(Brightness brightness) =>
       brightness == Brightness.dark
           ? const Color(0xFF2A3D33)
           : const Color(0xFFFFF3D6);
@@ -104,7 +104,7 @@ ThemeData speakMindTheme() {
 /// Dark theme (F4): the same journal accents on a deep teal-black page.
 /// Card and text colours come from the scheme, so pages that read
 /// `Theme.of(context).colorScheme` adapt automatically; pages with
-/// hard-coded light colours use the [SpeakMindColors.brasaCard] /
+/// hard-coded light colours use the [SpeakMindColors.chispaCard] /
 /// [SpeakMindColors.doneCard] / [SpeakMindColors.fogCard] helpers.
 ThemeData speakMindDarkTheme() {
   const scheme = ColorScheme(

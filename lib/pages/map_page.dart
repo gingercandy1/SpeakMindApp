@@ -10,7 +10,7 @@ library;
 
 import 'package:material_ui/material_ui.dart';
 
-import '../brasa.dart';
+import '../chispa.dart';
 import '../hidden_engine.dart';
 import '../levels.dart';
 import '../progress.dart';
@@ -203,7 +203,7 @@ class _ContinueCard extends StatelessWidget {
               )
             : Row(
                 children: [
-                  const BrasaFace(mood: BrasaMood.greeting, size: 48),
+                  const ChispaFace(mood: ChispaMood.greeting, size: 48),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(

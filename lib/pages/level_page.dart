@@ -2,7 +2,7 @@
 ///
 /// One level, six steps (levels dev doc §6):
 ///
-/// 1. 剧情引入 — Brasa's Chinese intro + the NPC's Spanish opening line
+/// 1. 剧情引入 — Chispa's Chinese intro + the NPC's Spanish opening line
 ///    (playable with TTS).
 /// 2. 热身卡片 — 5-8 words; record each word once, a light /assess marks
 ///    the card done (no grading). Skippable.
@@ -36,7 +36,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../api.dart';
-import '../brasa.dart';
+import '../chispa.dart';
 import '../level_recorder.dart';
 import '../level_scoring.dart';
 import '../levels.dart';
@@ -642,7 +642,7 @@ class _LevelPageState extends State<LevelPage> {
             ),
             const SizedBox(height: 16),
             Card(
-              color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
+              color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
@@ -738,7 +738,7 @@ class _LevelPageState extends State<LevelPage> {
         ),
         const SizedBox(height: 16),
         Card(
-          color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
+          color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -746,7 +746,7 @@ class _LevelPageState extends State<LevelPage> {
               children: [
                 Row(
                   children: [
-                    const BrasaFace(mood: BrasaMood.greeting, size: 44),
+                    const ChispaFace(mood: ChispaMood.greeting, size: 44),
                     const SizedBox(width: 10),
                     Text(
                       '$mascotName 说',
@@ -908,7 +908,7 @@ class _LevelPageState extends State<LevelPage> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
+            color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -1093,7 +1093,7 @@ class _LevelPageState extends State<LevelPage> {
         const SizedBox(height: 8),
         Row(
           children: [
-            const BrasaFace(mood: BrasaMood.thinking, size: 36),
+            const ChispaFace(mood: ChispaMood.thinking, size: 36),
             const SizedBox(width: 8),
             const Expanded(
               child: Text(
@@ -1151,7 +1151,7 @@ class _LevelPageState extends State<LevelPage> {
         ),
         const SizedBox(height: 12),
         Card(
-          color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
+          color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -1269,20 +1269,20 @@ class _LevelPageState extends State<LevelPage> {
         ),
         const SizedBox(height: 16),
         Center(
-          child: BrasaFace(
+          child: ChispaFace(
             mood: _newHidden.isNotEmpty
-                ? BrasaMood.discover
+                ? ChispaMood.discover
                 : moodForStars(_earnedStars),
             size: 96,
           ),
         ),
         const SizedBox(height: 8),
         Card(
-          color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
+          color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              brasaComment(_earnedStars),
+              chispaComment(_earnedStars),
               style: const TextStyle(fontSize: 16, height: 1.5),
             ),
           ),

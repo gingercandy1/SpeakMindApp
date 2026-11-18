@@ -9,7 +9,7 @@ library;
 
 import 'package:material_ui/material_ui.dart';
 
-import '../brasa.dart';
+import '../chispa.dart';
 import '../levels.dart';
 import '../progress.dart';
 import '../settings.dart';
@@ -44,7 +44,7 @@ class BranchPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              const BrasaFace(mood: BrasaMood.greeting, size: 56),
+              const ChispaFace(mood: ChispaMood.greeting, size: 56),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
