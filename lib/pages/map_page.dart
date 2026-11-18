@@ -5,21 +5,30 @@
 /// discovered hidden nodes as gold stars. Undiscovered worlds show fog
 /// (name visible, nodes hidden); undiscovered hidden nodes show nothing.
 /// Lock/unlock state comes from [ProgressStore]. Tapping an unlocked node
-/// opens the level placeholder page; tapping a locked node explains why.
+/// opens the level page; tapping a locked node explains why.
 library;
 
 import 'package:material_ui/material_ui.dart';
 
 import '../levels.dart';
 import '../progress.dart';
+import '../settings.dart';
 import '../theme.dart';
 import 'level_page.dart';
 
 class MapPage extends StatefulWidget {
-  const MapPage({super.key, required this.graph, required this.progress});
+  const MapPage({
+    super.key,
+    required this.graph,
+    required this.progress,
+    required this.settings,
+  });
 
   final LevelGraph graph;
   final ProgressStore progress;
+
+  /// Passed through to the level page (server URL + voices).
+  final SettingsStore settings;
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -49,6 +58,7 @@ class _MapPageState extends State<MapPage> {
           node: node,
           graph: widget.graph,
           progress: widget.progress,
+          settings: widget.settings,
         ),
       ),
     );
@@ -120,7 +130,7 @@ class _MapPageState extends State<MapPage> {
 }
 
 class _StatsRow extends StatelessWidget {
-  const _StatsRow({super.key, required this.progress, required this.graph});
+  const _StatsRow({required this.progress, required this.graph});
 
   final ProgressStore progress;
   final LevelGraph graph;
@@ -142,7 +152,7 @@ class _StatsRow extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({super.key, required this.label, required this.value});
+  const _Stat({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -169,7 +179,7 @@ class _Stat extends StatelessWidget {
 }
 
 class _ContinueCard extends StatelessWidget {
-  const _ContinueCard({super.key, required this.current, required this.onTap});
+  const _ContinueCard({required this.current, required this.onTap});
 
   final LevelNode? current;
   final void Function(LevelNode) onTap;
@@ -232,7 +242,6 @@ class _ContinueCard extends StatelessWidget {
 
 class _WorldSection extends StatelessWidget {
   const _WorldSection({
-    super.key,
     required this.world,
     required this.graph,
     required this.progress,
@@ -292,7 +301,6 @@ class _WorldSection extends StatelessWidget {
 
 class _WorldHeader extends StatelessWidget {
   const _WorldHeader({
-    super.key,
     required this.world,
     required this.stars,
     required this.unlocked,
@@ -353,7 +361,7 @@ class _WorldHeader extends StatelessWidget {
 }
 
 class _FogCard extends StatelessWidget {
-  const _FogCard({super.key, required this.world});
+  const _FogCard({required this.world});
 
   final WorldInfo world;
 
@@ -392,7 +400,6 @@ class _FogCard extends StatelessWidget {
 
 class _MainlineNode extends StatelessWidget {
   const _MainlineNode({
-    super.key,
     required this.node,
     required this.index,
     required this.progress,
@@ -438,7 +445,6 @@ class _MainlineNode extends StatelessWidget {
 
 class _HiddenNode extends StatelessWidget {
   const _HiddenNode({
-    super.key,
     required this.node,
     required this.progress,
     required this.onOpenLevel,
@@ -472,7 +478,6 @@ class _HiddenNode extends StatelessWidget {
 /// One tappable level node: circle + stars + title.
 class _LevelNodeButton extends StatelessWidget {
   const _LevelNodeButton({
-    super.key,
     required this.node,
     required this.label,
     required this.unlocked,
@@ -572,7 +577,6 @@ class _LevelNodeButton extends StatelessWidget {
 /// The fork after a world's level 5: two routes, each with 3 small nodes.
 class _ForkCard extends StatelessWidget {
   const _ForkCard({
-    super.key,
     required this.node,
     required this.graph,
     required this.progress,
@@ -641,7 +645,6 @@ class _ForkCard extends StatelessWidget {
 
 class _RouteColumn extends StatelessWidget {
   const _RouteColumn({
-    super.key,
     required this.route,
     required this.graph,
     required this.progress,
@@ -682,7 +685,6 @@ class _RouteColumn extends StatelessWidget {
 
 class _BranchNode extends StatelessWidget {
   const _BranchNode({
-    super.key,
     required this.node,
     required this.progress,
     required this.onOpenLevel,

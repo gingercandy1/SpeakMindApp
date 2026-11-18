@@ -45,7 +45,7 @@ class VoiceInput {
     try {
       return await _stt.listen(
         onResult: (result) => onResult(result.recognizedWords, result.finalResult),
-        localeId: locale,
+        listenOptions: SpeechListenOptions(localeId: locale),
       );
     } catch (_) {
       return false;

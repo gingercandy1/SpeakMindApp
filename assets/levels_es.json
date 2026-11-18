@@ -1,7 +1,7 @@
 {
   "lang": "es",
   "version": 1,
-  "note": "F0: 只定图结构与配置字段。138 个节点（主线 80 + 分支 42 + 隐藏 16），标题取自策划文档；每关教学内容（words / sentences / npc_prompt / task / task_rubric）为 TODO，F1+ 再填。",
+  "note": "F1: W1-W2 主线 20 关已填真实教学内容（words / sentences / npc_prompt / dialogue_opening / intro / task / task_rubric / challenge_prompt / challenge_sentence）。其余 118 个节点内容仍为 TODO，F2+ 再填。",
   "worlds": [
     {
       "id": 1,
@@ -113,20 +113,40 @@
       "lang": "es",
       "title": "¡Hola! Soy nuevo",
       "title_zh": "你好，我是新来的",
-      "scene": "你好，我是新来的",
+      "scene": "你刚到马德里，在咖啡馆门口遇见店主 Carmen，第一次用西语自我介绍。",
       "cefr": "A1",
       "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "rounds": 4,
+      "key_sounds": [
+        "重音位置",
+        "ñ"
+      ],
+      "words": [
+        "hola — 你好",
+        "buenos días — 早上好",
+        "me llamo — 我叫……",
+        "soy — 我是",
+        "de China — 来自中国",
+        "español — 西班牙语",
+        "mucho gusto — 很高兴认识你",
+        "gracias — 谢谢"
+      ],
+      "sentences": [
+        "Hola, me llamo Alex. — 你好，我叫 Alex。",
+        "Soy de China. — 我来自中国。",
+        "Hablo un poco de español. — 我会说一点西班牙语。"
+      ],
+      "npc_prompt": "Eres Carmen, la dueña de un café en Madrid. Hablas con un estudiante chino que está aprendiendo español y acaba de llegar a Madrid. Sé amable y paciente. Habla con frases muy cortas y sencillas (3 a 6 palabras), repite las ideas importantes y haz una pregunta corta al final. Tu objetivo en esta conversación: ayudar al estudiante a presentarse (nombre, de dónde es, qué idioma habla) en 3 o 4 turnos. Solo español, sin chino.",
+      "task": "不用提示，完成 3 轮自我介绍：名字、来自哪里、会说什么语言。",
+      "task_rubric": "说出名字、来自哪里、会说西语三项即达成；三项都说对且发音清楚判出色。",
       "next": "1-2",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你刚下飞机，来到马德里。咖啡馆的店主 Carmen 笑着向你打招呼。先跟她打个招呼，介绍一下你自己吧。",
+      "dialogue_opening": "¡Hola! Bienvenido a Madrid. ¿Cómo te llamas?",
+      "challenge_prompt": "变式挑战：现在换你主动打招呼。向 Carmen 介绍你自己，要说出名字和来自哪里。",
+      "challenge_sentence": "Hola, me llamo Alex y soy de China. — 你好，我叫 Alex，我来自中国。"
     },
     {
       "id": "1-2",
@@ -135,20 +155,40 @@
       "lang": "es",
       "title": "Un café con leche",
       "title_zh": "一杯牛奶咖啡",
-      "scene": "一杯牛奶咖啡",
+      "scene": "在 Carmen 的咖啡馆点一杯牛奶咖啡，还要帮同伴点一杯。",
       "cefr": "A1",
       "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "rounds": 4,
+      "key_sounds": [
+        "重音位置",
+        "ñ"
+      ],
+      "words": [
+        "un café — 一杯咖啡",
+        "con leche — 加牛奶",
+        "sin azúcar — 不加糖",
+        "grande — 大杯",
+        "pequeño — 小杯",
+        "caliente — 热的",
+        "frío — 冷的",
+        "la cuenta — 账单"
+      ],
+      "sentences": [
+        "Un café con leche, por favor. — 请来一杯牛奶咖啡。",
+        "Quiero un café grande, sin azúcar. — 我要一杯大杯咖啡，不加糖。",
+        "¿Cuánto es? — 多少钱？"
+      ],
+      "npc_prompt": "Eres Carmen, la dueña de un café en Madrid. Un estudiante chino quiere pedir un café con leche. Sé amable y paciente. Habla con frases cortas y sencillas (3 a 6 palabras). Pregunta por el tamaño, si lo quiere caliente o frío, y con azúcar o sin azúcar. Tu objetivo: ayudar al estudiante a pedir dos cafés: uno para él y otro para su amigo. Solo español, sin chino.",
+      "task": "点两杯咖啡：自己一杯牛奶咖啡，再帮同伴点一杯，说清大小、冷热、加糖与否。",
+      "task_rubric": "两杯都点清、说清要求即达成；一次说对、不重复问判出色。",
       "next": "1-3",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "早上好，咖啡馆里飘着咖啡香。Carmen 在吧台后等你点单。点一杯牛奶咖啡，再帮你的同伴也点一杯。",
+      "dialogue_opening": "¡Buenos días! ¿Qué quieres tomar?",
+      "challenge_prompt": "变式挑战：换个说法点单。这次要点一杯小杯的冰咖啡，不加糖。",
+      "challenge_sentence": "Un café frío y pequeño, sin azúcar, por favor. — 请来一杯小杯冰咖啡，不加糖。"
     },
     {
       "id": "1-3",
@@ -157,20 +197,40 @@
       "lang": "es",
       "title": "En el mercado",
       "title_zh": "在集市",
-      "scene": "在集市",
+      "scene": "在马德里集市买水果，问价、还价，预算 5 欧元买齐 3 样。",
       "cefr": "A1",
       "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "rounds": 4,
+      "key_sounds": [
+        "重音位置",
+        "ñ"
+      ],
+      "words": [
+        "el mercado — 集市",
+        "la manzana — 苹果",
+        "la naranja — 橙子",
+        "el plátano — 香蕉",
+        "¿cuánto cuesta? — 多少钱？",
+        "el kilo — 一公斤",
+        "barato — 便宜的",
+        "caro — 贵的"
+      ],
+      "sentences": [
+        "¿Cuánto cuestan las manzanas? — 苹果多少钱？",
+        "Quiero un kilo de naranjas. — 我要一公斤橙子。",
+        "¿Me lo deja más barato? — 能便宜点吗？"
+      ],
+      "npc_prompt": "Eres un vendedor del mercado de Madrid. Un estudiante chino quiere comprar fruta con un presupuesto de 5 euros. Sé amable y paciente. Habla con frases cortas y sencillas (3 a 6 palabras). Di los precios por kilo y acepta regatear un poco. Tu objetivo: ayudar al estudiante a comprar 3 frutas distintas sin pasar de 5 euros. Solo español, sin chino.",
+      "task": "预算 5 欧元内买齐 3 样水果：问价、还价、算清总价。",
+      "task_rubric": "买齐 3 样且不超预算即达成；主动还价并一次算对总价判出色。",
       "next": "1-4",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "集市上摆满了新鲜水果。摊主在招呼你。问问价格，买 3 样水果，预算只有 5 欧元，记得还还价。",
+      "dialogue_opening": "¡Hola! ¿Qué fruta quieres hoy? Tengo manzanas, naranjas y plátanos.",
+      "challenge_prompt": "变式挑战：换种水果再买一次。问问香蕉多少钱，买一公斤。",
+      "challenge_sentence": "¿Cuánto cuesta un kilo de plátanos? — 一公斤香蕉多少钱？"
     },
     {
       "id": "1-4",
@@ -179,20 +239,40 @@
       "lang": "es",
       "title": "Mi familia",
       "title_zh": "我的家人",
-      "scene": "我的家人",
+      "scene": "和 Carmen 聊你的家人：爸爸、妈妈、哥哥是做什么的。",
       "cefr": "A1",
       "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "rounds": 4,
+      "key_sounds": [
+        "重音位置",
+        "ñ"
+      ],
+      "words": [
+        "mi padre — 我爸爸",
+        "mi madre — 我妈妈",
+        "mi hermano — 我哥哥",
+        "mi hermana — 我姐姐",
+        "trabaja en — 在……工作",
+        "es profesor — 他是老师",
+        "es médico — 他是医生",
+        "la familia — 家庭"
+      ],
+      "sentences": [
+        "Mi padre es profesor. — 我爸爸是老师。",
+        "Mi madre trabaja en un banco. — 我妈妈在银行工作。",
+        "Mi hermano es estudiante. — 我哥哥是学生。"
+      ],
+      "npc_prompt": "Eres Carmen, la dueña de un café en Madrid. Estás charlando con un estudiante chino sobre su familia. Sé amable y paciente. Habla con frases cortas y sencillas (3 a 6 palabras). Pregunta por su padre, su madre y sus hermanos, y por sus trabajos. Tu objetivo: que el estudiante presente a 3 familiares con su relación y su trabajo. Solo español, sin chino.",
+      "task": "说清 3 位家人的关系和工作。",
+      "task_rubric": "3 位家人关系与工作都说清即达成；用对 ser / trabajar 判出色。",
       "next": "1-5",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "Carmen 指着墙上的全家福，问起你的家人。介绍一下你的爸爸、妈妈和哥哥，说说他们是做什么的。",
+      "dialogue_opening": "¿Tienes hermanos? Cuéntame de tu familia.",
+      "challenge_prompt": "变式挑战：换一个人介绍。介绍你的妈妈，说说她在哪里工作。",
+      "challenge_sentence": "Mi madre trabaja en un hospital. — 我妈妈在医院工作。"
     },
     {
       "id": "1-5",
@@ -201,20 +281,40 @@
       "lang": "es",
       "title": "¿Dónde está...?",
       "title_zh": "……在哪里",
-      "scene": "……在哪里",
+      "scene": "在马德里街头问路：咖啡馆、药店、地铁站在哪里。",
       "cefr": "A1",
       "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "rounds": 4,
+      "key_sounds": [
+        "重音位置",
+        "ñ"
+      ],
+      "words": [
+        "¿dónde está? — 在哪里？",
+        "a la derecha — 在右边",
+        "a la izquierda — 在左边",
+        "cerca — 近",
+        "lejos — 远",
+        "la farmacia — 药店",
+        "la estación — 车站",
+        "el metro — 地铁"
+      ],
+      "sentences": [
+        "¿Dónde está el metro? — 地铁站在哪里？",
+        "La farmacia está a la derecha. — 药店在右边。",
+        "¿Está cerca o lejos? — 是近还是远？"
+      ],
+      "npc_prompt": "Eres un vecino de Madrid. Un estudiante chino te pregunta dónde están varios lugares. Sé amable y paciente. Habla con frases cortas y sencillas (3 a 6 palabras). Usa las palabras de dirección: a la derecha, a la izquierda, cerca, lejos. Tu objetivo: ayudar al estudiante a encontrar 3 lugares: el café, la farmacia y la estación de metro. Solo español, sin chino.",
+      "task": "按描述找到地图上的 3 个地点：咖啡馆、药店、地铁站。",
+      "task_rubric": "3 个地点都问清方位即达成；能复述一遍路线判出色。",
       "next": "1-6",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你在马德里街头找路。问问路人：咖啡馆、药店和地铁站分别在哪里，听清方位再走。",
+      "dialogue_opening": "¡Hola! ¿Buscas algo? Puedo ayudarte.",
+      "challenge_prompt": "变式挑战：换个地方问路。问问药店在哪里。",
+      "challenge_sentence": "Perdón, ¿dónde está la farmacia? — 请问，药店在哪里？"
     },
     {
       "id": "1-6",
@@ -223,20 +323,40 @@
       "lang": "es",
       "title": "La hora y el día",
       "title_zh": "时间与日期",
-      "scene": "时间与日期",
+      "scene": "和 Carmen 约时间：星期几、几点见面。",
       "cefr": "A1",
       "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "rounds": 4,
+      "key_sounds": [
+        "重音位置",
+        "ñ"
+      ],
+      "words": [
+        "la hora — 时间",
+        "¿qué hora es? — 几点了？",
+        "son las tres — 三点了",
+        "el lunes — 星期一",
+        "el sábado — 星期六",
+        "mañana — 明天",
+        "hoy — 今天",
+        "a las cinco — 五点"
+      ],
+      "sentences": [
+        "¿Qué hora es? — 现在几点了？",
+        "Son las tres de la tarde. — 现在是下午三点。",
+        "¿Nos vemos el sábado a las cinco? — 我们周六五点见，好吗？"
+      ],
+      "npc_prompt": "Eres Carmen, la dueña de un café en Madrid. Quieres quedar con un estudiante chino para ir al mercado el fin de semana. Sé amable y paciente. Habla con frases cortas y sencillas (3 a 6 palabras). Propón un día y una hora, y pregunta si le viene bien. Tu objetivo: quedar en un día y una hora que les venga bien a los dos. Solo español, sin chino.",
+      "task": "和 NPC 约成一个双方都行的时间：说清星期和几点。",
+      "task_rubric": "约成双方都行的时间即达成；主动提出备选时间判出色。",
       "next": "1-7",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "Carmen 想约你周末去集市。说说星期几、几点你有空，约一个双方都行的时间。",
+      "dialogue_opening": "¿Te apetece ir al mercado el sábado? ¿A qué hora puedes?",
+      "challenge_prompt": "变式挑战：换个时间约。问问对方周日上午十点行不行。",
+      "challenge_sentence": "¿El domingo a las diez te viene bien? — 周日十点你方便吗？"
     },
     {
       "id": "1-7",
@@ -245,20 +365,40 @@
       "lang": "es",
       "title": "Tapas para todos",
       "title_zh": "大家的小吃",
-      "scene": "大家的小吃",
+      "scene": "在 tapas 吧点一桌小吃，要照顾一位不吃辣的同伴。",
       "cefr": "A1",
       "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "rounds": 4,
+      "key_sounds": [
+        "重音位置",
+        "ñ"
+      ],
+      "words": [
+        "las tapas — 小吃",
+        "picante — 辣的",
+        "no picante — 不辣的",
+        "me gusta — 我喜欢",
+        "no me gusta — 我不喜欢",
+        "una tortilla — 一份土豆饼",
+        "el pan — 面包",
+        "para mí — 给我"
+      ],
+      "sentences": [
+        "Quiero unas tapas, por favor. — 请来一些小吃。",
+        "Mi amigo no come picante. — 我的朋友不吃辣。",
+        "¿Esto es picante? — 这个辣吗？"
+      ],
+      "npc_prompt": "Eres un camarero de un bar de tapas en Madrid. Un estudiante chino viene con un amigo que no come picante. Sé amable y paciente. Habla con frases cortas y sencillas (3 a 6 palabras). Recomienda tapas y di cuáles son picantes y cuáles no. Tu objetivo: ayudar al estudiante a pedir tapas para los dos, con algo sin picante para su amigo. Solo español, sin chino.",
+      "task": "照顾一位不吃辣的同伴点齐一桌：问清辣不辣，点到他能吃的。",
+      "task_rubric": "点齐一桌且有同伴能吃的不辣菜即达成；主动问清每道菜辣不辣判出色。",
       "next": "1-8",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "晚上去吃 tapas，你的同伴不能吃辣。点一桌小吃，记得问清哪些不辣，再帮同伴点一份他能吃的。",
+      "dialogue_opening": "¡Buenas noches! ¿Qué os apetece? Tenemos tortilla, patatas y jamón.",
+      "challenge_prompt": "变式挑战：换一道菜点。问问土豆饼辣不辣，再点一份。",
+      "challenge_sentence": "¿La tortilla es picante? Quiero una, por favor. — 土豆饼辣吗？请来一份。"
     },
     {
       "id": "1-8",
@@ -267,20 +407,40 @@
       "lang": "es",
       "title": "El perro perdido",
       "title_zh": "走丢的小狗",
-      "scene": "走丢的小狗",
+      "scene": "帮一位邻居找走丢的小狗：说清它长什么样、最后出现在哪里。",
       "cefr": "A1",
       "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "rounds": 4,
+      "key_sounds": [
+        "重音位置",
+        "ñ"
+      ],
+      "words": [
+        "el perro — 狗",
+        "pequeño — 小的",
+        "grande — 大的",
+        "blanco — 白色的",
+        "negro — 黑色的",
+        "tiene — 它有",
+        "las orejas — 耳朵",
+        "la cola — 尾巴"
+      ],
+      "sentences": [
+        "El perro es pequeño y blanco. — 这只狗又小又白。",
+        "Tiene las orejas grandes. — 它的耳朵很大。",
+        "Lo vi cerca del parque. — 我在公园附近见过它。"
+      ],
+      "npc_prompt": "Eres un vecino de Madrid que ha perdido a su perro. Un estudiante chino dice que ha visto un perro parecido. Sé amable y paciente. Habla con frases cortas y sencillas (3 a 6 palabras). Pregunta cómo es el perro (tamaño, color, orejas, cola) y dónde lo vio. Tu objetivo: que el estudiante describa el perro y el lugar donde lo vio para poder encontrarlo. Solo español, sin chino.",
+      "task": "说清小狗的特征和最后出现的位置，帮主人找到它。",
+      "task_rubric": "说清大小、颜色和地点三项即达成；再说出耳朵或尾巴的特征判出色。",
       "next": "1-9",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "邻居的狗走丢了，他很着急。你在街上见过一只小狗。描述它的样子和你最后看到它的地方，帮他找到它。",
+      "dialogue_opening": "¡Ayuda! He perdido a mi perro. ¿Has visto un perro por aquí?",
+      "challenge_prompt": "变式挑战：换个特征描述。说说这只狗的尾巴很长。",
+      "challenge_sentence": "El perro tiene la cola muy larga. — 这只狗的尾巴很长。"
     },
     {
       "id": "1-9",
@@ -289,20 +449,40 @@
       "lang": "es",
       "title": "De compras",
       "title_zh": "买衣服",
-      "scene": "买衣服",
+      "scene": "在服装店买衣服：颜色、尺码、试穿、问价。",
       "cefr": "A1",
       "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "rounds": 4,
+      "key_sounds": [
+        "重音位置",
+        "ñ"
+      ],
+      "words": [
+        "el jersey — 毛衣",
+        "la camisa — 衬衫",
+        "rojo — 红色的",
+        "azul — 蓝色的",
+        "la talla — 尺码",
+        "grande — 大号",
+        "pequeño — 小号",
+        "probarse — 试穿"
+      ],
+      "sentences": [
+        "Quiero un jersey azul. — 我想要一件蓝色毛衣。",
+        "¿Tienen la talla M? — 有 M 码吗？",
+        "¿Puedo probármelo? — 我可以试穿吗？"
+      ],
+      "npc_prompt": "Eres una vendedora de una tienda de ropa en Madrid. Un estudiante chino quiere comprar un jersey. Sé amable y paciente. Habla con frases cortas y sencillas (3 a 6 palabras). Pregunta por el color y la talla, ofrece probárselo y di el precio. Tu objetivo: ayudar al estudiante a encontrar un jersey de su talla, probárselo y saber el precio. Solo español, sin chino.",
+      "task": "换到合身的一件并问清价格：说清颜色、尺码、试穿。",
+      "task_rubric": "试穿并问清合身那件的价格即达成；主动问有没有别的颜色判出色。",
       "next": "1-10",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你想买一件毛衣。问问有没有蓝色、什么尺码，试穿一下，再问问价格，换到合身的一件。",
+      "dialogue_opening": "¡Hola! ¿Buscas algo? Tenemos jerseys de muchos colores.",
+      "challenge_prompt": "变式挑战：换个颜色买。问问有没有红色的毛衣。",
+      "challenge_sentence": "¿Tienen un jersey rojo? — 有红色的毛衣吗？"
     },
     {
       "id": "1-10",
@@ -311,20 +491,40 @@
       "lang": "es",
       "title": "La fiesta del barrio",
       "title_zh": "街区派对",
-      "scene": "街区派对",
+      "scene": "街区派对上致祝酒词：邀请、祝福、回应。",
       "cefr": "A1",
       "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "rounds": 4,
+      "key_sounds": [
+        "重音位置",
+        "ñ"
+      ],
+      "words": [
+        "la fiesta — 派对",
+        "¡salud! — 干杯！",
+        "bienvenidos — 欢迎",
+        "gracias a todos — 谢谢大家",
+        "la vecina — 女邻居",
+        "el vecino — 男邻居",
+        "celebrar — 庆祝",
+        "un brindis — 祝酒"
+      ],
+      "sentences": [
+        "¡Bienvenidos a la fiesta! — 欢迎来参加派对！",
+        "Gracias a todos por venir. — 谢谢大家能来。",
+        "¡Salud! — 干杯！"
+      ],
+      "npc_prompt": "Eres Carmen, la dueña de un café en Madrid, en la fiesta del barrio. Es la fiesta final del primer mundo y el estudiante va a decir un brindis. Sé amable y paciente. Habla con frases cortas y sencillas (3 a 6 palabras). Anima al estudiante, hazle una pregunta sobre la fiesta y pídele que diga el brindis. Tu objetivo: que el estudiante invite a todos, dé las gracias y diga un brindis completo. Solo español, sin chino.",
+      "task": "主持一句祝酒词：邀请、感谢、举杯祝福，发音达到 70 分。",
+      "task_rubric": "完整说出祝酒词即达成；发音 70 分以上且自然流利判出色。",
       "next": "2-1",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "街区派对开始了，邻居们请你说一句祝酒词。邀请大家举杯，送上祝福，发音要清楚响亮。",
+      "dialogue_opening": "¡Qué bien que estés aquí! ¿Te gusta la fiesta del barrio?",
+      "challenge_prompt": "变式挑战：再说一句祝福。祝大家今晚玩得开心。",
+      "challenge_sentence": "¡Que lo pasen muy bien esta noche! — 祝大家今晚玩得开心！"
     },
     {
       "id": "1H-1",
@@ -385,20 +585,41 @@
       "lang": "es",
       "title": "Un billete a Barcelona",
       "title_zh": "一张去巴塞罗那的票",
-      "scene": "一张去巴塞罗那的票",
+      "scene": "在马德里火车站买一张去巴塞罗那的票，时间、座位、单程往返。",
       "cefr": "A1-A2",
-      "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "pass_gop": 65,
+      "rounds": 5,
+      "key_sounds": [
+        "重音位置",
+        "ñ",
+        "r / rr 对比（只提示）"
+      ],
+      "words": [
+        "el billete — 票",
+        "el tren — 火车",
+        "la estación — 车站",
+        "ida y vuelta — 往返",
+        "solo ida — 单程",
+        "la ventanilla — 售票窗口",
+        "el asiento — 座位",
+        "el horario — 时刻表"
+      ],
+      "sentences": [
+        "Quiero un billete a Barcelona. — 我想买一张去巴塞罗那的票。",
+        "¿A qué hora sale el tren? — 火车几点出发？",
+        "¿Cuánto cuesta el billete? — 票多少钱？"
+      ],
+      "npc_prompt": "Eres un empleado de la estación de tren de Madrid. Un estudiante chino quiere comprar un billete a Barcelona. Sé amable y paciente. Habla con frases sencillas (6 a 10 palabras). Pregunta por el día, la hora y si quiere ida o ida y vuelta. Tu objetivo: venderle el billete y ayudarle a cambiarlo a un tren más temprano. Solo español, sin chino.",
+      "task": "买票并改签到更早一班：说清时间、座位、单程还是往返。",
+      "task_rubric": "买到票并改签到更早一班即达成；问清座位和价格判出色。",
       "next": "2-2",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你要去巴塞罗那找 Pablo。先去车站买票：问问几点有车、多少钱，再改签到更早的一班。",
+      "dialogue_opening": "¡Hola! ¿A dónde viajas? ¿Quieres un billete a Barcelona?",
+      "challenge_prompt": "变式挑战：换个说法改签。问问能不能改到早上八点的车。",
+      "challenge_sentence": "¿Puedo cambiar el billete para las ocho? — 我能把票改到八点吗？"
     },
     {
       "id": "2-2",
@@ -407,20 +628,41 @@
       "lang": "es",
       "title": "Perdidos en el metro",
       "title_zh": "在地铁里迷路",
-      "scene": "在地铁里迷路",
+      "scene": "在巴塞罗那地铁里迷路：问路、换乘，听懂绕行提醒。",
       "cefr": "A1-A2",
-      "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "pass_gop": 65,
+      "rounds": 5,
+      "key_sounds": [
+        "重音位置",
+        "ñ",
+        "r / rr 对比（只提示）"
+      ],
+      "words": [
+        "el metro — 地铁",
+        "la línea — 线路",
+        "cambiar — 换乘",
+        "la salida — 出口",
+        "la parada — 车站",
+        "todo recto — 一直走",
+        "girar — 转弯",
+        "perdido — 迷路的"
+      ],
+      "sentences": [
+        "Estoy perdido. — 我迷路了。",
+        "¿Dónde cambio de línea? — 在哪里换乘？",
+        "¿Cómo llego a la Sagrada Familia? — 怎么去圣家堂？"
+      ],
+      "npc_prompt": "Eres un vecino de Barcelona en el metro. Un estudiante chino se ha perdido y quiere llegar a la Sagrada Familia. Sé amable y paciente. Habla con frases sencillas (6 a 10 palabras). Explica cómo cambiar de línea y avísale de que hay obras y tiene que dar un rodeo. Tu objetivo: que el estudiante entienda el rodeo y llegue a su destino. Solo español, sin chino.",
+      "task": "听懂绕行提醒并改路线到达圣家堂。",
+      "task_rubric": "听懂绕行并说出新路线即达成；能复述换乘站名判出色。",
       "next": "2-3",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你到了巴塞罗那，却在地铁里迷了路。问问路人怎么换乘，听清绕行提醒，再改路线到达。",
+      "dialogue_opening": "¿Te has perdido? ¿A dónde quieres ir?",
+      "challenge_prompt": "变式挑战：换个地方问路。问问怎么去海滩。",
+      "challenge_sentence": "Perdón, ¿cómo llego a la playa? — 请问，怎么去海滩？"
     },
     {
       "id": "2-3",
@@ -429,20 +671,41 @@
       "lang": "es",
       "title": "La reserva del hotel",
       "title_zh": "酒店预订",
-      "scene": "酒店预订",
+      "scene": "在巴塞罗那酒店办理入住：确认预订、提需求。",
       "cefr": "A1-A2",
-      "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "pass_gop": 65,
+      "rounds": 5,
+      "key_sounds": [
+        "重音位置",
+        "ñ",
+        "r / rr 对比（只提示）"
+      ],
+      "words": [
+        "la reserva — 预订",
+        "la habitación — 房间",
+        "doble — 双人间",
+        "con vistas — 带景观",
+        "la ventana — 窗户",
+        "la llave — 钥匙",
+        "el desayuno — 早餐",
+        "la recepción — 前台"
+      ],
+      "sentences": [
+        "Tengo una reserva a nombre de Alex. — 我有一个以 Alex 为名的预订。",
+        "Quiero una habitación con ventana. — 我想要一间带窗户的房间。",
+        "¿A qué hora es el desayuno? — 早餐是几点？"
+      ],
+      "npc_prompt": "Eres el recepcionista de un hotel en Barcelona. Un estudiante chino llega con una reserva. Sé amable y paciente. Habla con frases sencillas (6 a 10 palabras). Confirma su reserva y pregunta qué tipo de habitación quiere. Tu objetivo: ayudarle a cambiar su habitación doble por una con ventana. Solo español, sin chino.",
+      "task": "把双人间换成带窗的房间：确认预订、说清需求。",
+      "task_rubric": "换到带窗房间即达成；问清早餐和退房时间判出色。",
       "next": "2-4",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你到了酒店前台。确认你的预订，再把双人间换成一间带窗户的房间。",
+      "dialogue_opening": "¡Buenas tardes! Bienvenido al hotel. ¿Tiene una reserva?",
+      "challenge_prompt": "变式挑战：换个需求提。问问房间里有没有空调。",
+      "challenge_sentence": "¿La habitación tiene aire acondicionado? — 房间里有空调吗？"
     },
     {
       "id": "2-4",
@@ -451,20 +714,41 @@
       "lang": "es",
       "title": "En el aeropuerto",
       "title_zh": "在机场",
-      "scene": "在机场",
+      "scene": "在机场值机：行李、登机口，行李超重了。",
       "cefr": "A1-A2",
-      "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "pass_gop": 65,
+      "rounds": 5,
+      "key_sounds": [
+        "重音位置",
+        "ñ",
+        "r / rr 对比（只提示）"
+      ],
+      "words": [
+        "el aeropuerto — 机场",
+        "el vuelo — 航班",
+        "la maleta — 行李箱",
+        "el equipaje — 行李",
+        "la puerta de embarque — 登机口",
+        "la tarjeta de embarque — 登机牌",
+        "facturar — 托运",
+        "de mano — 随身的"
+      ],
+      "sentences": [
+        "Quiero facturar esta maleta. — 我想托运这个行李箱。",
+        "¿Cuál es la puerta de embarque? — 登机口是哪个？",
+        "Mi maleta pesa demasiado. — 我的行李箱太重了。"
+      ],
+      "npc_prompt": "Eres un empleado del aeropuerto de Barcelona. Un estudiante chino quiere facturar su maleta, pero pesa demasiado. Sé amable y paciente. Habla con frases sencillas (6 a 10 palabras). Explica el problema del peso y pregunta qué quiere llevar en la cabina. Tu objetivo: que el estudiante diga qué lleva de mano y resuelva el exceso de peso. Solo español, sin chino.",
+      "task": "行李超重时说清哪件随身带，并办完值机。",
+      "task_rubric": "说清随身行李并办完值机即达成；问清登机口和登机时间判出色。",
       "next": "2-5",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你要坐飞机离开巴塞罗那。去值机：托运行李、问登机口。行李超重了，说清楚哪件随身带。",
+      "dialogue_opening": "¡Hola! ¿Va a facturar alguna maleta?",
+      "challenge_prompt": "变式挑战：换个说法问。问问航班几点起飞。",
+      "challenge_sentence": "¿A qué hora sale el vuelo? — 航班几点起飞？"
     },
     {
       "id": "2-5",
@@ -473,16 +757,33 @@
       "lang": "es",
       "title": "Un piso con vistas",
       "title_zh": "带景观的公寓",
-      "scene": "带景观的公寓",
+      "scene": "在巴塞罗那看一间短租公寓：问广告里没写的事。",
       "cefr": "A1-A2",
-      "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "pass_gop": 65,
+      "rounds": 5,
+      "key_sounds": [
+        "重音位置",
+        "ñ",
+        "r / rr 对比（只提示）"
+      ],
+      "words": [
+        "el piso — 公寓",
+        "alquilar — 租",
+        "amueblado — 带家具的",
+        "la fianza — 押金",
+        "las vistas — 景观",
+        "el alquiler — 租金",
+        "la cocina — 厨房",
+        "el baño — 卫生间"
+      ],
+      "sentences": [
+        "Quiero alquilar el piso por una semana. — 我想租这间公寓一周。",
+        "¿Está amueblado? ¿Y cuánto es la fianza? — 带家具吗？押金是多少？",
+        "¿Cuánto es el alquiler al mes? — 月租金是多少？"
+      ],
+      "npc_prompt": "Eres el dueño de un piso en Barcelona con vistas al mar. Un estudiante chino quiere alquilarlo por una semana. Sé amable pero ocupado. Habla con frases sencillas (6 a 10 palabras). Responde sobre los muebles, la fianza y el alquiler. En el tercer turno, di que la caldera tiene un pequeño problema y pregúntale si le importa. Tu objetivo: que el estudiante pregunte por los muebles, la fianza y la fecha de entrada, y que responda al problema de la caldera. Solo español, sin chino.",
+      "task": "问清家具、押金与入住时间；再问出广告里没写的 2 件事，听到热水器问题后表态并谈妥。",
+      "task_rubric": "三项问齐且完成表态判达成；再主动确认总价判出色。",
       "next": "2-6",
       "branches": [
         {
@@ -509,7 +810,11 @@
         }
       ],
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "Pablo 帮你找到一间带景观的公寓。房东在等你看房。问问家具、押金和入住时间，再问出广告里没写的两件事。",
+      "dialogue_opening": "¡Hola! Este es el piso. Tiene vistas al mar, ¿te gusta?",
+      "challenge_prompt": "变式挑战：换个问题问。问问公寓离地铁站远不远。",
+      "challenge_sentence": "¿El piso está lejos del metro? — 公寓离地铁站远吗？"
     },
     {
       "id": "2-6",
@@ -518,20 +823,41 @@
       "lang": "es",
       "title": "La playa y el tiempo",
       "title_zh": "海滩与天气",
-      "scene": "海滩与天气",
+      "scene": "在巴塞罗那海滩聊天气：按天气预报改出行计划。",
       "cefr": "A1-A2",
-      "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "pass_gop": 65,
+      "rounds": 5,
+      "key_sounds": [
+        "重音位置",
+        "ñ",
+        "r / rr 对比（只提示）"
+      ],
+      "words": [
+        "la playa — 海滩",
+        "el tiempo — 天气",
+        "hace sol — 晴天",
+        "llueve — 下雨",
+        "la nube — 云",
+        "mañana — 明天",
+        "el fin de semana — 周末",
+        "el paraguas — 雨伞"
+      ],
+      "sentences": [
+        "Hoy hace mucho sol. — 今天阳光很好。",
+        "¿Va a llover mañana? — 明天会下雨吗？",
+        "Vamos a la playa el domingo. — 我们周日去海滩吧。"
+      ],
+      "npc_prompt": "Eres Pablo, un músico callejero de Barcelona. Estás con un estudiante chino en la playa hablando del tiempo. Sé amable y paciente. Habla con frases sencillas (6 a 10 palabras). Habla del sol, de las nubes y del pronóstico de mañana. Tu objetivo: que el estudiante entienda el pronóstico y cambie el plan de ir a la playa. Solo español, sin chino.",
+      "task": "按天气预报改一次出行计划：说清天气和改后的安排。",
+      "task_rubric": "说清天气并改好计划即达成；主动提出备选活动判出色。",
       "next": "2-7",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你和 Pablo 约好去海滩，可天气预报说下午要下雨。聊聊天气，按预报改一次出行计划。",
+      "dialogue_opening": "¡Qué buen día para la playa! ¿Has visto el pronóstico de mañana?",
+      "challenge_prompt": "变式挑战：换个说法聊天气。说说今天很热。",
+      "challenge_sentence": "Hoy hace mucho calor. — 今天很热。"
     },
     {
       "id": "2-7",
@@ -540,20 +866,41 @@
       "lang": "es",
       "title": "Alquilar una bici",
       "title_zh": "租一辆自行车",
-      "scene": "租一辆自行车",
+      "scene": "在巴塞罗那租一辆自行车：租期、押金、规则。",
       "cefr": "A1-A2",
-      "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "pass_gop": 65,
+      "rounds": 5,
+      "key_sounds": [
+        "重音位置",
+        "ñ",
+        "r / rr 对比（只提示）"
+      ],
+      "words": [
+        "la bici — 自行车",
+        "alquilar — 租",
+        "la fianza — 押金",
+        "por día — 每天",
+        "por hora — 每小时",
+        "devolver — 归还",
+        "tarde — 晚",
+        "el casco — 头盔"
+      ],
+      "sentences": [
+        "Quiero alquilar una bici por un día. — 我想租一辆自行车一天。",
+        "¿Cuánto es la fianza? — 押金是多少？",
+        "¿Cuánto cuesta si la devuelvo tarde? — 如果晚还车要多少钱？"
+      ],
+      "npc_prompt": "Eres un empleado de una tienda de alquiler de bicis en Barcelona. Un estudiante chino quiere alquilar una bici. Sé amable y paciente. Habla con frases sencillas (6 a 10 palabras). Explica el precio por día, la fianza y la multa por devolverla tarde. Tu objetivo: que el estudiante pregunte por el precio, la fianza y la multa antes de decidir. Solo español, sin chino.",
+      "task": "问清晚还车的费用再决定：说清租期、押金、规则。",
+      "task_rubric": "问清租期、押金和晚还费用即达成；主动问头盔和车锁判出色。",
       "next": "2-8",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你想租辆自行车逛巴塞罗那。问问租多久、押金多少，晚还车要多少钱，问清楚再决定。",
+      "dialogue_opening": "¡Hola! ¿Quieres alquilar una bici? Tenemos bicis de montaña y de ciudad.",
+      "challenge_prompt": "变式挑战：换个说法租。问问租一小时多少钱。",
+      "challenge_sentence": "¿Cuánto cuesta alquilarla por una hora? — 租一小时多少钱？"
     },
     {
       "id": "2-8",
@@ -562,20 +909,41 @@
       "lang": "es",
       "title": "Tapas o paella",
       "title_zh": "小吃还是海鲜饭",
-      "scene": "小吃还是海鲜饭",
+      "scene": "在餐厅选小吃还是海鲜饭：听推荐、用比较级。",
       "cefr": "A1-A2",
-      "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "pass_gop": 65,
+      "rounds": 5,
+      "key_sounds": [
+        "重音位置",
+        "ñ",
+        "r / rr 对比（只提示）"
+      ],
+      "words": [
+        "la paella — 海鲜饭",
+        "las tapas — 小吃",
+        "mejor — 更好",
+        "más barato — 更便宜",
+        "más grande — 更大",
+        "el restaurante — 餐厅",
+        "recomendar — 推荐",
+        "probar — 尝"
+      ],
+      "sentences": [
+        "¿Qué me recomiendas? — 你推荐什么？",
+        "La paella es más grande que las tapas. — 海鲜饭比小吃分量大。",
+        "Este restaurante es mejor. — 这家餐厅更好。"
+      ],
+      "npc_prompt": "Eres Pablo, un músico callejero de Barcelona. Estás con un estudiante chino que no sabe si pedir tapas o paella. Sé amable y paciente. Habla con frases sencillas (6 a 10 palabras). Recomienda dos restaurantes y compáralos con mejor, más barato y más grande. Tu objetivo: que el estudiante diga las diferencias entre los dos sitios y elija uno. Solo español, sin chino.",
+      "task": "说清两家店差别并选一家：用上比较级。",
+      "task_rubric": "说清差别并选定一家即达成；用对两个比较级判出色。",
       "next": "2-9",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "Pablo 带你去吃饭：小吃还是海鲜饭？听听推荐，说清两家店的差别，再选一家。",
+      "dialogue_opening": "¡Tengo hambre! ¿Tapas o paella? Yo conozco dos sitios muy buenos.",
+      "challenge_prompt": "变式挑战：换个比较说。说说这家比那家便宜。",
+      "challenge_sentence": "Este restaurante es más barato. — 这家餐厅更便宜。"
     },
     {
       "id": "2-9",
@@ -584,20 +952,41 @@
       "lang": "es",
       "title": "El museo cerrado",
       "title_zh": "闭馆的博物馆",
-      "scene": "闭馆的博物馆",
+      "scene": "博物馆闭馆了：问开放时间，谈妥 B 计划。",
       "cefr": "A1-A2",
-      "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "pass_gop": 65,
+      "rounds": 5,
+      "key_sounds": [
+        "重音位置",
+        "ñ",
+        "r / rr 对比（只提示）"
+      ],
+      "words": [
+        "el museo — 博物馆",
+        "cerrado — 关门的",
+        "abierto — 开门的",
+        "el horario — 开放时间",
+        "mañana — 明天",
+        "en vez de — 代替",
+        "el parque — 公园",
+        "el plan B — B 计划"
+      ],
+      "sentences": [
+        "¿Por qué está cerrado el museo? — 博物馆为什么关门？",
+        "¿A qué hora abre mañana? — 明天几点开门？",
+        "Vamos al parque en vez del museo. — 我们去公园代替博物馆吧。"
+      ],
+      "npc_prompt": "Eres Pablo, un músico callejero de Barcelona. Estás con un estudiante chino delante del museo, pero hoy está cerrado. Sé amable y paciente. Habla con frases sencillas (6 a 10 palabras). Explica por qué está cerrado y cuándo abre, y propón un plan B. Tu objetivo: que el estudiante pregunte por el horario y negocie un plan B para hoy. Solo español, sin chino.",
+      "task": "当场谈妥 B 计划行程：问清开放时间，定好替代安排。",
+      "task_rubric": "谈妥 B 计划即达成；问清明天开放时间并约好再来判出色。",
       "next": "2-10",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你和 Pablo 到了博物馆门口，才发现今天闭馆。问问开放时间，当场谈妥一个 B 计划行程。",
+      "dialogue_opening": "¡Vaya! El museo está cerrado hoy. ¿Qué hacemos?",
+      "challenge_prompt": "变式挑战：换个说法问。问问博物馆星期一开不开门。",
+      "challenge_sentence": "¿El museo abre los lunes? — 博物馆星期一开门吗？"
     },
     {
       "id": "2-10",
@@ -606,20 +995,41 @@
       "lang": "es",
       "title": "El último barco",
       "title_zh": "末班船",
-      "scene": "末班船",
+      "scene": "错过了末班船：在 5 轮内谈妥替代方案。",
       "cefr": "A1-A2",
-      "pass_gop": 60,
-      "rounds": null,
-      "key_sounds": [],
-      "words": [],
-      "sentences": [],
-      "npc_prompt": null,
-      "task": null,
-      "task_rubric": null,
+      "pass_gop": 65,
+      "rounds": 5,
+      "key_sounds": [
+        "重音位置",
+        "ñ",
+        "r / rr 对比（只提示）"
+      ],
+      "words": [
+        "el barco — 船",
+        "el último — 最后一班",
+        "perder — 错过",
+        "el puerto — 港口",
+        "el autobús — 公共汽车",
+        "el taxi — 出租车",
+        "la alternativa — 替代方案",
+        "ayuda — 帮助"
+      ],
+      "sentences": [
+        "He perdido el último barco. — 我错过了末班船。",
+        "¿Hay otra forma de cruzar? — 还有别的办法过去吗？",
+        "¿Podemos ir en autobús? — 我们可以坐公共汽车去吗？"
+      ],
+      "npc_prompt": "Eres Pablo, un músico callejero de Barcelona. Un estudiante chino ha perdido el último barco y necesita ayuda. Sé amable y paciente. Habla con frases sencillas (6 a 10 palabras). Propón alternativas: autobús, taxi o esperar hasta mañana. Tu objetivo: ayudar al estudiante a negociar una alternativa en 5 turnos como máximo. Solo español, sin chino.",
+      "task": "错过船后 5 轮内谈妥替代方案：说清问题、比较选择、定下来。",
+      "task_rubric": "5 轮内谈妥替代方案即达成；问清价格和时间并一次定下来判出色。",
       "next": "3-1",
       "branches": null,
       "hidden_trigger": null,
-      "content_todo": true
+      "content_todo": false,
+      "intro": "你错过了去对岸的末班船。别慌，问问 Pablo 还有什么办法，5 轮之内谈妥一个替代方案。",
+      "dialogue_opening": "¡No te preocupes! Has perdido el barco, pero hay otras formas de cruzar.",
+      "challenge_prompt": "变式挑战：再说一句求助。问问出租车多少钱。",
+      "challenge_sentence": "¿Cuánto cuesta un taxi hasta allí? — 打车到那儿多少钱？"
     },
     {
       "id": "2B-1",

@@ -1,9 +1,10 @@
 /// F0: level graph data model, driven by `assets/levels_es.json`.
 ///
 /// The graph is the single source of truth for the 138 nodes (80 mainline +
-/// 42 branch + 16 hidden). Per-level teaching content (words, sentences,
-/// npc_prompt, task) is deliberately left empty in F0 and filled in F1+.
-/// See the levels dev doc §8 for the field contract.
+/// 42 branch + 16 hidden). F1 filled the teaching content of the W1-W2
+/// mainline levels (words, sentences, npc_prompt, task, dialogue_opening,
+/// intro, challenge); the other 118 nodes keep `content_todo: true` until
+/// their phase. See the levels dev doc §8 for the field contract.
 library;
 
 import 'dart:convert';
@@ -135,6 +136,15 @@ class WorldInfo {
   }
 }
 
+/// Splits a content entry written as `es — zh` (Spanish text, em-dash,
+/// Chinese gloss) into its two parts. Entries without the separator are
+/// returned whole as [Gloss.es] with an empty [Gloss.zh].
+({String es, String zh}) splitGloss(String entry) {
+  final i = entry.indexOf(' — ');
+  if (i < 0) return (es: entry, zh: '');
+  return (es: entry.substring(0, i).trim(), zh: entry.substring(i + 3).trim());
+}
+
 /// One node of the level graph.
 class LevelNode {
   const LevelNode({
@@ -144,6 +154,8 @@ class LevelNode {
     required this.title,
     required this.titleZh,
     this.scene,
+    this.intro,
+    this.dialogueOpening,
     required this.cefr,
     required this.passGop,
     this.rounds,
@@ -153,6 +165,8 @@ class LevelNode {
     this.npcPrompt,
     this.task,
     this.taskRubric,
+    this.challengePrompt,
+    this.challengeSentence,
     this.next,
     this.branches,
     this.hiddenTrigger,
@@ -176,6 +190,13 @@ class LevelNode {
 
   /// Scene description, in Chinese. Null until F1 fills it in.
   final String? scene;
+
+  /// Brasa's story intro for step 1, in Chinese. Null until F1.
+  final String? intro;
+
+  /// The NPC's first Spanish line in the dialogue, spoken by TTS.
+  /// Null until F1.
+  final String? dialogueOpening;
 
   /// CEFR band of this level's world.
   final String cefr;
@@ -203,6 +224,12 @@ class LevelNode {
 
   /// Challenge rubric. Null until F1.
   final String? taskRubric;
+
+  /// Step-5 variant-task instruction, in Chinese. Null until F1.
+  final String? challengePrompt;
+
+  /// Step-5 sentence to speak, written as `es — zh`. Null until F1.
+  final String? challengeSentence;
 
   /// Next node on the mainline path, or null for the final level.
   final String? next;
@@ -232,6 +259,8 @@ class LevelNode {
         title: j['title'] as String? ?? '',
         titleZh: j['title_zh'] as String? ?? '',
         scene: j['scene'] as String?,
+        intro: j['intro'] as String?,
+        dialogueOpening: j['dialogue_opening'] as String?,
         cefr: j['cefr'] as String? ?? '',
         passGop: j['pass_gop'] as int? ?? 60,
         rounds: j['rounds'] as int?,
@@ -247,6 +276,8 @@ class LevelNode {
         npcPrompt: j['npc_prompt'] as String?,
         task: j['task'] as String?,
         taskRubric: j['task_rubric'] as String?,
+        challengePrompt: j['challenge_prompt'] as String?,
+        challengeSentence: j['challenge_sentence'] as String?,
         next: j['next'] as String?,
         branches: (j['branches'] as List?)
             ?.map((b) => LevelBranch.fromJson(b as Map<String, dynamic>))

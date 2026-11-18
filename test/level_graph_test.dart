@@ -23,8 +23,8 @@ void main() {
         jsonDecode(_sampleJson) as Map<String, dynamic>,
       );
       expect(graph.worlds.length, 2);
-      expect(graph.totalLevels, 4);
-      expect(graph.countByKind(LevelKind.main), 2);
+      expect(graph.totalLevels, 5);
+      expect(graph.countByKind(LevelKind.main), 3);
       expect(graph.countByKind(LevelKind.branch), 1);
       expect(graph.countByKind(LevelKind.hidden), 1);
       final fork = graph.levelById('1-5')!;
@@ -50,7 +50,7 @@ void main() {
       expect(graph.countByKind(LevelKind.hidden), 16);
       for (final level in graph.levels) {
         if (level.next != null) {
-          expect(graph.levelById(level.next), isNotNull,
+          expect(graph.levelById(level.next!), isNotNull,
               reason: '${level.id} next -> ${level.next}');
         }
         for (final branch in level.branches ?? const <LevelBranch>[]) {
@@ -63,7 +63,7 @@ void main() {
         }
         final trigger = level.hiddenTrigger;
         if (trigger?.level != null) {
-          expect(graph.levelById(trigger!.level), isNotNull,
+          expect(graph.levelById(trigger!.level!), isNotNull,
               reason: '${level.id} trigger -> ${trigger.level}');
         }
       }
@@ -128,7 +128,7 @@ void main() {
 
     test('world unlock rule: W2 opens after W1 mainline >= 8 stars',
         () async {
-      // Sample graph has only W1/W2 with 2 mainline levels in W1; the
+      // Sample graph has only W1/W2 with 3 mainline levels in W1; the
       // rule needs 8, so W2 must stay locked here.
       expect(store.isWorldUnlocked(2, graph), isFalse);
       expect(store.isWorldUnlocked(1, graph), isTrue);
@@ -137,7 +137,8 @@ void main() {
     test('progress survives reload (SharedPreferences)', () async {
       await store.completeLevel(graph.levelById('1-1')!, graph, stars: 3);
       final reloaded = await ProgressStore.load();
-      expect(reloaded.isUnlocked('1-2'), isTrue);
+      // 1-1's next in the sample is 1-5 (not 1-2): that is what unlocks.
+      expect(reloaded.isUnlocked('1-5'), isTrue);
       expect(reloaded.stars('1-1'), 3);
       expect(reloaded.xp, LevelRewards.mainline);
     });
@@ -177,6 +178,9 @@ const _sampleJson = '''
     {"id": "1B-1", "kind": "branch", "world": 1, "lang": "es",
      "title": "Ruta del Mar · 1", "title_zh": "海边线 · 第 1 关",
      "cefr": "A1", "pass_gop": 60, "route": "mar", "next": "1B-2"},
+    {"id": "1-6", "kind": "main", "world": 1, "lang": "es",
+     "title": "Nos vemos", "title_zh": "回头见",
+     "cefr": "A1", "pass_gop": 60, "next": null},
     {"id": "1H-1", "kind": "hidden", "world": 1, "lang": "es",
      "title": "La bodega secreta", "title_zh": "秘密小酒窖",
      "cefr": "A1", "pass_gop": 60,
