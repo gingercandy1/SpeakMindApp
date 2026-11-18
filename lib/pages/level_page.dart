@@ -2,7 +2,7 @@
 ///
 /// One level, six steps (levels dev doc §6):
 ///
-/// 1. 剧情引入 — Brasa's Chinese intro + the NPC's Spanish opening line
+/// 1. 剧情引入 — Chispa's Chinese intro + the NPC's Spanish opening line
 ///    (playable with TTS).
 /// 2. 热身卡片 — 5-8 words; record each word once, a light /assess marks
 ///    the card done (no grading). Skippable.
@@ -36,7 +36,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../api.dart';
-import '../brasa.dart';
+import '../chispa.dart';
+import '../history.dart';
 import '../level_recorder.dart';
 import '../level_scoring.dart';
 import '../levels.dart';
@@ -66,6 +67,7 @@ class LevelPage extends StatefulWidget {
     required this.graph,
     required this.progress,
     required this.settings,
+    required this.history,
   });
 
   final LevelNode node;
@@ -74,6 +76,9 @@ class LevelPage extends StatefulWidget {
 
   /// Settings (server URL + voices). Levels are Spanish-only.
   final SettingsStore settings;
+
+  /// Play history: one record per attempt (completed or abandoned).
+  final HistoryStore history;
 
   @override
   State<LevelPage> createState() => _LevelPageState();
@@ -185,9 +190,16 @@ class _LevelPageState extends State<LevelPage> {
       _challengeResult != null &&
       _challengeResult!.accuracy >= challengeExcellentGop;
 
+  // Play history: when this attempt started, and whether a record for
+  // it is already written (completed in _finish, abandoned in dispose).
+  // Distinct from _startedAt, which times a single recording take.
+  late DateTime _levelStartedAt;
+  bool _historyRecorded = false;
+
   @override
   void initState() {
     super.initState();
+    _levelStartedAt = DateTime.now();
     _initVoice();
     // Revisit (F4): reopening a completed level that a `revisit` trigger
     // is attached to reveals its hidden level.
@@ -211,6 +223,13 @@ class _LevelPageState extends State<LevelPage> {
 
   @override
   void dispose() {
+    // Left before the results step: record an abandoned attempt, unless
+    // _finish already wrote the completed one. Placeholder pages (nodes
+    // with no teaching content yet) never started a real attempt.
+    if (!_historyRecorded && _hasContent) {
+      _historyRecorded = true;
+      unawaited(_recordAbandoned());
+    }
     _ticker?.cancel();
     _recorder.dispose();
     _voice.cancel();
@@ -218,6 +237,36 @@ class _LevelPageState extends State<LevelPage> {
     _scroll.dispose();
     _speaker.dispose();
     super.dispose();
+  }
+
+  /// Writes the abandoned-attempt record. Fire-and-forget from dispose
+  /// (dispose is synchronous); failures are swallowed so leaving a level
+  /// can never throw.
+  Future<void> _recordAbandoned() async {
+    try {
+      await widget.history.record(
+        levelId: _node.id,
+        startedAt: _levelStartedAt,
+        finishedAt: DateTime.now(),
+        stars: 0,
+        xpEarned: 0,
+        pronAvg: null,
+        challengeScore: null,
+        rounds: _userTurns,
+        hintsUsed: _hintsUsed,
+        weakestSentence: null,
+        completed: false,
+      );
+    } catch (_) {
+      // History must never break navigation.
+    }
+  }
+
+  /// Best-effort upload of unsynced records. Never awaited, never throws.
+  void _syncHistory() {
+    unawaited(
+      widget.history.sync(ApiClient(widget.settings.serverUrl)),
+    );
   }
 
   // ------------------------------------------------------------------
@@ -260,6 +309,33 @@ class _LevelPageState extends State<LevelPage> {
       challengeExcellent: _challengeExcellent,
       endingId: _pickedEnding,
     );
+    // Play history: one completed record per finish. Recording must not
+    // break the results screen, so failures are swallowed; the sync is
+    // fire-and-forget and never blocks the star reveal below.
+    if (!_historyRecorded) {
+      _historyRecorded = true;
+      final weakest = _weakestSentenceIndex();
+      try {
+        await widget.history.record(
+          levelId: _node.id,
+          startedAt: _levelStartedAt,
+          finishedAt: DateTime.now(),
+          stars: stars,
+          xpEarned: outcome.earnedXp,
+          pronAvg: avg,
+          challengeScore: _challengeResult?.accuracy,
+          rounds: _userTurns,
+          hintsUsed: _hintsUsed,
+          weakestSentence: weakest == null
+              ? null
+              : splitGloss(_node.sentences[weakest]).es,
+          completed: true,
+        );
+      } catch (_) {
+        // History must never break the results screen.
+      }
+      _syncHistory();
+    }
     setState(() {
       _completed = true;
       _earnedStars = stars;
@@ -642,7 +718,7 @@ class _LevelPageState extends State<LevelPage> {
             ),
             const SizedBox(height: 16),
             Card(
-              color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
+              color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
@@ -738,7 +814,7 @@ class _LevelPageState extends State<LevelPage> {
         ),
         const SizedBox(height: 16),
         Card(
-          color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
+          color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -746,7 +822,7 @@ class _LevelPageState extends State<LevelPage> {
               children: [
                 Row(
                   children: [
-                    const BrasaFace(mood: BrasaMood.greeting, size: 44),
+                    const ChispaFace(mood: ChispaMood.greeting, size: 44),
                     const SizedBox(width: 10),
                     Text(
                       '$mascotName 说',
@@ -908,7 +984,7 @@ class _LevelPageState extends State<LevelPage> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
+            color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -1093,7 +1169,7 @@ class _LevelPageState extends State<LevelPage> {
         const SizedBox(height: 8),
         Row(
           children: [
-            const BrasaFace(mood: BrasaMood.thinking, size: 36),
+            const ChispaFace(mood: ChispaMood.thinking, size: 36),
             const SizedBox(width: 8),
             const Expanded(
               child: Text(
@@ -1151,7 +1227,7 @@ class _LevelPageState extends State<LevelPage> {
         ),
         const SizedBox(height: 12),
         Card(
-          color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
+          color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -1269,20 +1345,20 @@ class _LevelPageState extends State<LevelPage> {
         ),
         const SizedBox(height: 16),
         Center(
-          child: BrasaFace(
+          child: ChispaFace(
             mood: _newHidden.isNotEmpty
-                ? BrasaMood.discover
+                ? ChispaMood.discover
                 : moodForStars(_earnedStars),
             size: 96,
           ),
         ),
         const SizedBox(height: 8),
         Card(
-          color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
+          color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              brasaComment(_earnedStars),
+              chispaComment(_earnedStars),
               style: const TextStyle(fontSize: 16, height: 1.5),
             ),
           ),
@@ -1377,6 +1453,7 @@ class _LevelPageState extends State<LevelPage> {
                       graph: widget.graph,
                       progress: widget.progress,
                       settings: widget.settings,
+                      history: widget.history,
                     ),
                   ),
                 );
@@ -1394,6 +1471,7 @@ class _LevelPageState extends State<LevelPage> {
                   graph: widget.graph,
                   progress: widget.progress,
                   settings: widget.settings,
+                  history: widget.history,
                 ),
               ),
             ),
@@ -1408,6 +1486,7 @@ class _LevelPageState extends State<LevelPage> {
                 graph: widget.graph,
                 progress: widget.progress,
                 settings: widget.settings,
+                history: widget.history,
               ),
             ),
           ),

@@ -47,8 +47,8 @@ int computeStars({
   return challengeExcellent ? 3 : 2;
 }
 
-/// Brasa's encouragement line on the results screen, by stars earned.
-String brasaComment(int stars) => switch (stars) {
+/// Chispa's encouragement line on the results screen, by stars earned.
+String chispaComment(int stars) => switch (stars) {
       3 => '¡Increíble! 三颗星，发音和任务都超棒，继续冲！',
       2 => '¡Muy bien! 两颗星，挑战句子再练练就能拿满星。',
       _ => '¡Buen trabajo! 通关啦，再打一次，星星会越来越多。',

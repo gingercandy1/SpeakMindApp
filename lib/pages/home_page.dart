@@ -5,6 +5,7 @@ library;
 
 import 'package:material_ui/material_ui.dart';
 
+import '../history.dart';
 import '../levels.dart';
 import '../progress.dart';
 import '../settings.dart';
@@ -18,11 +19,13 @@ class HomePage extends StatefulWidget {
     super.key,
     required this.settings,
     required this.progress,
+    required this.history,
     this.graph,
   });
 
   final SettingsStore settings;
   final ProgressStore progress;
+  final HistoryStore history;
 
   /// Preloaded graph. When null (the app's normal path) the graph is
   /// loaded from assets/levels_es.json. Widget tests pass a graph
@@ -70,6 +73,7 @@ class _HomePageState extends State<HomePage> {
             graph: graph,
             progress: widget.progress,
             settings: widget.settings,
+            history: widget.history,
           ),
           StampsPage(
             graph: graph,
@@ -81,6 +85,7 @@ class _HomePageState extends State<HomePage> {
             graph: graph,
             progress: widget.progress,
             settings: widget.settings,
+            history: widget.history,
           ),
         ];
         return Scaffold(

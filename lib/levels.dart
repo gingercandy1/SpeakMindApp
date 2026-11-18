@@ -256,7 +256,7 @@ class LevelNode {
   /// Scene description, in Chinese. Null until F1 fills it in.
   final String? scene;
 
-  /// Brasa's story intro for step 1, in Chinese. Null until F1.
+  /// Chispa's story intro for step 1, in Chinese. Null until F1.
   final String? intro;
 
   /// The NPC's first Spanish line in the dialogue, spoken by TTS.

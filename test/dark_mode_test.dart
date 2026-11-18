@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:speakmind/history.dart';
 import 'package:speakmind/levels.dart';
 import 'package:speakmind/main.dart';
 import 'package:speakmind/pages/home_page.dart';
@@ -57,6 +58,7 @@ void main() {
       SharedPreferences.setMockInitialValues(<String, Object>{});
       final progress = await ProgressStore.load();
       final settings = await SettingsStore.load();
+      final history = await HistoryStore.load();
       await settings.setThemeMode(ThemeMode.dark);
       final graph = await _loadGraph(tester);
       Brightness? seen;
@@ -71,6 +73,7 @@ void main() {
               return HomePage(
                 settings: settings,
                 progress: progress,
+                history: history,
                 graph: graph,
               );
             },
@@ -88,8 +91,9 @@ void main() {
       SharedPreferences.setMockInitialValues(<String, Object>{});
       final progress = await ProgressStore.load();
       final settings = await SettingsStore.load();
+      final history = await HistoryStore.load();
       await tester.pumpWidget(
-        MyApp(settings: settings, progress: progress),
+        MyApp(settings: settings, progress: progress, history: history),
       );
       // MyApp loads the graph from assets in the test zone, so the home
       // shell stays on its loading spinner here; only the theme switch

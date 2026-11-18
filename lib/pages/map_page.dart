@@ -10,8 +10,9 @@ library;
 
 import 'package:material_ui/material_ui.dart';
 
-import '../brasa.dart';
+import '../chispa.dart';
 import '../hidden_engine.dart';
+import '../history.dart';
 import '../levels.dart';
 import '../progress.dart';
 import '../settings.dart';
@@ -25,6 +26,7 @@ class MapPage extends StatefulWidget {
     required this.graph,
     required this.progress,
     required this.settings,
+    required this.history,
   });
 
   final LevelGraph graph;
@@ -32,6 +34,9 @@ class MapPage extends StatefulWidget {
 
   /// Passed through to the level page (server URL + voices).
   final SettingsStore settings;
+
+  /// Passed through to the level page for play-history recording.
+  final HistoryStore history;
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -62,6 +67,7 @@ class _MapPageState extends State<MapPage> {
           graph: widget.graph,
           progress: widget.progress,
           settings: widget.settings,
+          history: widget.history,
         ),
       ),
     );
@@ -123,6 +129,7 @@ class _MapPageState extends State<MapPage> {
               graph: graph,
               progress: progress,
               settings: widget.settings,
+              history: widget.history,
               onOpenLevel: _openLevel,
               onLocked: _showLocked,
             ),
@@ -203,7 +210,7 @@ class _ContinueCard extends StatelessWidget {
               )
             : Row(
                 children: [
-                  const BrasaFace(mood: BrasaMood.greeting, size: 48),
+                  const ChispaFace(mood: ChispaMood.greeting, size: 48),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -241,6 +248,7 @@ class _WorldSection extends StatelessWidget {
     required this.graph,
     required this.progress,
     required this.settings,
+    required this.history,
     required this.onOpenLevel,
     required this.onLocked,
   });
@@ -249,6 +257,7 @@ class _WorldSection extends StatelessWidget {
   final LevelGraph graph;
   final ProgressStore progress;
   final SettingsStore settings;
+  final HistoryStore history;
   final void Function(LevelNode) onOpenLevel;
   final void Function(String) onLocked;
 
@@ -304,6 +313,7 @@ class _WorldSection extends StatelessWidget {
                 graph: graph,
                 progress: progress,
                 settings: settings,
+                history: history,
                 onOpenLevel: onOpenLevel,
                 onLocked: onLocked,
               ),
@@ -665,6 +675,7 @@ class _ForkCard extends StatelessWidget {
     required this.graph,
     required this.progress,
     required this.settings,
+    required this.history,
     required this.onOpenLevel,
     required this.onLocked,
   });
@@ -673,6 +684,7 @@ class _ForkCard extends StatelessWidget {
   final LevelGraph graph;
   final ProgressStore progress;
   final SettingsStore settings;
+  final HistoryStore history;
   final void Function(LevelNode) onOpenLevel;
   final void Function(String) onLocked;
 
@@ -736,6 +748,7 @@ class _ForkCard extends StatelessWidget {
                         graph: graph,
                         progress: progress,
                         settings: settings,
+                        history: history,
                       ),
                     ),
                   );
