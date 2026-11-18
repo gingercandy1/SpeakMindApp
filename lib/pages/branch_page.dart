@@ -10,6 +10,7 @@ library;
 import 'package:material_ui/material_ui.dart';
 
 import '../chispa.dart';
+import '../history.dart';
 import '../levels.dart';
 import '../progress.dart';
 import '../settings.dart';
@@ -23,6 +24,7 @@ class BranchPage extends StatelessWidget {
     required this.graph,
     required this.progress,
     required this.settings,
+    required this.history,
   });
 
   /// The level-5 fork node whose routes are on offer.
@@ -31,6 +33,7 @@ class BranchPage extends StatelessWidget {
   final LevelGraph graph;
   final ProgressStore progress;
   final SettingsStore settings;
+  final HistoryStore history;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +69,7 @@ class BranchPage extends StatelessWidget {
               graph: graph,
               progress: progress,
               settings: settings,
+              history: history,
               state: chosen == route.route
                   ? _RouteState.chosen
                   : worldDone || chosen == null
@@ -109,6 +113,7 @@ class BranchPage extends StatelessWidget {
           graph: graph,
           progress: progress,
           settings: settings,
+          history: history,
         ),
       ),
     );
@@ -123,6 +128,7 @@ class _RouteCard extends StatelessWidget {
     required this.graph,
     required this.progress,
     required this.settings,
+    required this.history,
     required this.state,
     required this.onPick,
   });
@@ -131,6 +137,7 @@ class _RouteCard extends StatelessWidget {
   final LevelGraph graph;
   final ProgressStore progress;
   final SettingsStore settings;
+  final HistoryStore history;
   final _RouteState state;
   final VoidCallback? onPick;
 
@@ -243,6 +250,7 @@ class _RouteCard extends StatelessWidget {
           graph: graph,
           progress: progress,
           settings: settings,
+          history: history,
         ),
       ),
     );

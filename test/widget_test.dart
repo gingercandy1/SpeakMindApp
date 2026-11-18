@@ -24,6 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:speakmind/history.dart';
 import 'package:speakmind/levels.dart';
 import 'package:speakmind/pages/home_page.dart';
 import 'package:speakmind/progress.dart';
@@ -35,6 +36,7 @@ void main() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     final progress = await ProgressStore.load();
     final settings = await SettingsStore.load();
+    final history = await HistoryStore.load();
     final graph = (await tester.runAsync(() async {
       final raw = await rootBundle.loadString('assets/levels_es.json');
       return LevelGraph.fromJson(
@@ -44,7 +46,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: speakMindTheme(),
-        home: HomePage(settings: settings, progress: progress, graph: graph),
+        home: HomePage(settings: settings, progress: progress, history: history, graph: graph),
       ),
     );
     // The injected graph is already loaded (Future.value), so one pump

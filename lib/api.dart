@@ -112,6 +112,34 @@ class ApiClient {
     });
   }
 
+  /// Uploads play-history records for backup. Returns how many the
+  /// server accepted. Throws [ApiException] on any failure, so the
+  /// caller (HistoryStore.sync) can leave the records unsynced.
+  Future<int> uploadHistory({
+    required String deviceId,
+    required List<Map<String, dynamic>> records,
+  }) {
+    return _guard(() async {
+      final response = await _client
+          .post(
+            _uri('/history'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'device_id': deviceId, 'records': records}),
+          )
+          .timeout(const Duration(seconds: 8));
+      final body = utf8.decode(response.bodyBytes);
+      if (response.statusCode != 200) {
+        throw ApiException(_detail(body) ?? '服务器错误 ${response.statusCode}');
+      }
+      final json = jsonDecode(body);
+      final accepted = json is Map ? json['accepted'] : null;
+      if (accepted is! int) {
+        throw const ApiException('服务器返回了无法识别的内容');
+      }
+      return accepted;
+    });
+  }
+
   /// What the server can do, to confirm the address works.
   Future<ServerInfo> health() {
     return _guard(() async {
