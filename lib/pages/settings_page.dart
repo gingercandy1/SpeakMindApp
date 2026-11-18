@@ -59,6 +59,31 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          Text('外观', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 10),
+          SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(
+                value: ThemeMode.system,
+                label: Text('跟随系统'),
+                icon: Icon(Icons.brightness_auto_outlined),
+              ),
+              ButtonSegment(
+                value: ThemeMode.light,
+                label: Text('浅色'),
+                icon: Icon(Icons.light_mode_outlined),
+              ),
+              ButtonSegment(
+                value: ThemeMode.dark,
+                label: Text('深色'),
+                icon: Icon(Icons.dark_mode_outlined),
+              ),
+            ],
+            selected: {widget.settings.themeMode},
+            onSelectionChanged: (selection) =>
+                widget.settings.setThemeMode(selection.first),
+          ),
+          const SizedBox(height: 20),
           Text('评分服务器地址', style: theme.textTheme.titleMedium),
           const SizedBox(height: 10),
           TextField(

@@ -19,10 +19,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SpeakMind',
-      theme: speakMindTheme(),
-      home: HomePage(settings: settings, progress: progress),
+    // Rebuilds the MaterialApp when the theme mode changes (F4 dark mode).
+    return ListenableBuilder(
+      listenable: settings,
+      builder: (context, _) => MaterialApp(
+        title: 'SpeakMind',
+        theme: speakMindTheme(),
+        darkTheme: speakMindDarkTheme(),
+        themeMode: settings.themeMode,
+        home: HomePage(settings: settings, progress: progress),
+      ),
     );
   }
 }

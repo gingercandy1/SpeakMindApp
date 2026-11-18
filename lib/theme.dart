@@ -1,7 +1,8 @@
 /// F0: SpeakMind visual theme, from the final planning doc (p.11).
 ///
-/// Travel-journal game style. Light theme only; dark mode is deferred
-/// to F4 by the doc, so no darkTheme is built here.
+/// Travel-journal game style. F4 adds the dark theme the doc deferred:
+/// the journal palette goes dark-teal instead of cream, with the same
+/// action green / amber / terracotta accents.
 library;
 
 import 'package:material_ui/material_ui.dart';
@@ -31,6 +32,31 @@ abstract class SpeakMindColors {
 
   /// Fog over undiscovered worlds.
   static const Color fog = Color(0xFFB9B2A4);
+
+  /// Dark-mode page background (deep teal-black).
+  static const Color darkSurface = Color(0xFF16211D);
+
+  /// Dark-mode card surface.
+  static const Color darkCard = Color(0xFF223129);
+
+  /// Brasa's speech / challenge card: warm yellow in light mode, dark
+  /// teal container in dark mode. Use with `Theme.of(context).brightness`.
+  static Color brasaCard(Brightness brightness) =>
+      brightness == Brightness.dark
+          ? const Color(0xFF2A3D33)
+          : const Color(0xFFFFF3D6);
+
+  /// "Done" card tint (warm-up word read, dialogue-complete chip).
+  static Color doneCard(Brightness brightness) =>
+      brightness == Brightness.dark
+          ? const Color(0xFF24402E)
+          : const Color(0xFFDFF3DF);
+
+  /// Fogged-world card: pale paper in light mode, dark stone in dark mode.
+  static Color fogCard(Brightness brightness) =>
+      brightness == Brightness.dark
+          ? const Color(0xFF26302B)
+          : const Color(0xFFEDE7D8);
 }
 
 /// The app theme: cream background, deep-teal primary, fully round buttons,
@@ -65,6 +91,53 @@ ThemeData speakMindTheme() {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: SpeakMindColors.actionGreen,
+        foregroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(999)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+      ),
+    ),
+  );
+}
+
+/// Dark theme (F4): the same journal accents on a deep teal-black page.
+/// Card and text colours come from the scheme, so pages that read
+/// `Theme.of(context).colorScheme` adapt automatically; pages with
+/// hard-coded light colours use the [SpeakMindColors.brasaCard] /
+/// [SpeakMindColors.doneCard] / [SpeakMindColors.fogCard] helpers.
+ThemeData speakMindDarkTheme() {
+  const scheme = ColorScheme(
+    brightness: Brightness.dark,
+    primary: Color(0xFF4DB6A6),
+    onPrimary: Color(0xFF0B1F1B),
+    secondary: SpeakMindColors.amber,
+    onSecondary: SpeakMindColors.ink,
+    surface: SpeakMindColors.darkSurface,
+    onSurface: Color(0xFFFFF7EA),
+    surfaceContainerHighest: SpeakMindColors.darkCard,
+    error: Color(0xFFE07856),
+    onError: Color(0xFF2B0D05),
+  );
+  return ThemeData(
+    colorScheme: scheme,
+    scaffoldBackgroundColor: SpeakMindColors.darkSurface,
+    cardColor: SpeakMindColors.darkCard,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: SpeakMindColors.darkSurface,
+      foregroundColor: Color(0xFFFFF7EA),
+      elevation: 0,
+      centerTitle: false,
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: SpeakMindColors.darkSurface,
+      selectedItemColor: Color(0xFF4DB6A6),
+      unselectedItemColor: Color(0xFF8A938C),
+      type: BottomNavigationBarType.fixed,
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF2A9D8F),
         foregroundColor: Colors.white,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(999)),

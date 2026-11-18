@@ -27,6 +27,8 @@ class ProfilePage extends StatelessWidget {
     final totalStars = progress.totalStars;
     final maxStars = graph.totalLevels * 3;
     final nextLevelAt = progress.travellerLevel * LevelRewards.xpPerLevel;
+    final (mainDone, mainTotal) = progress.mainlineProgress(graph);
+    final (exploreDone, exploreTotal) = progress.explorationProgress(graph);
     return Scaffold(
       appBar: AppBar(title: const Text('我的')),
       body: ListView(
@@ -43,10 +45,10 @@ class ProfilePage extends StatelessWidget {
                 children: [
                   Text(
                     '旅行者 Lv.${progress.travellerLevel}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: SpeakMindColors.ink,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -54,7 +56,7 @@ class ProfilePage extends StatelessWidget {
                   const SizedBox(height: 4),
                   LinearProgressIndicator(
                     value: progress.xp / nextLevelAt,
-                    backgroundColor: SpeakMindColors.cream,
+                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     color: SpeakMindColors.actionGreen,
                   ),
                   const SizedBox(height: 8),
@@ -62,8 +64,32 @@ class ProfilePage extends StatelessWidget {
                   const SizedBox(height: 4),
                   LinearProgressIndicator(
                     value: maxStars == 0 ? 0 : totalStars / maxStars,
-                    backgroundColor: SpeakMindColors.cream,
+                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     color: SpeakMindColors.amber,
+                  ),
+                  const SizedBox(height: 12),
+                  Text('主线完成度 $mainDone / $mainTotal'),
+                  const SizedBox(height: 4),
+                  LinearProgressIndicator(
+                    value: mainTotal == 0 ? 0 : mainDone / mainTotal,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: SpeakMindColors.actionGreen,
+                  ),
+                  const SizedBox(height: 8),
+                  Text('探索完成度 $exploreDone / $exploreTotal（支线 + 隐藏 + 结局）'),
+                  const SizedBox(height: 4),
+                  LinearProgressIndicator(
+                    value: exploreTotal == 0
+                        ? 0
+                        : exploreDone / exploreTotal,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: SpeakMindColors.amber,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '连续学习 ${progress.streakDays} 天 · 邮票 ${progress.postcards(graph).length} 张 · 贴纸 ${progress.earnedStickerIds.length} / 18',
                   ),
                 ],
               ),

@@ -103,6 +103,144 @@ void main() {
     });
   });
 
+  group('F2-F3: all 138 nodes have content', () {
+    late LevelGraph graph;
+
+    setUpAll(() async {
+      graph = await _loadGraph();
+    });
+
+    test('every node has its teaching content filled', () {
+      expect(graph.totalLevels, 138);
+      for (final node in graph.levels) {
+        expect(node.contentTodo, isFalse, reason: '${node.id} content_todo');
+        expect(node.scene, isNotNull, reason: '${node.id} scene');
+        expect(node.intro, isNotNull, reason: '${node.id} intro');
+        expect(
+          node.dialogueOpening,
+          isNotNull,
+          reason: '${node.id} dialogue_opening',
+        );
+        expect(node.npcPrompt, isNotNull, reason: '${node.id} npc_prompt');
+        expect(node.task, isNotNull, reason: '${node.id} task');
+        expect(node.taskRubric, isNotNull, reason: '${node.id} task_rubric');
+        expect(
+          node.challengePrompt,
+          isNotNull,
+          reason: '${node.id} challenge_prompt',
+        );
+        expect(
+          node.challengeSentence,
+          isNotNull,
+          reason: '${node.id} challenge_sentence',
+        );
+        expect(node.rounds, isNotNull, reason: '${node.id} rounds');
+        expect(
+          node.words.length,
+          inInclusiveRange(5, 8),
+          reason: '${node.id} words',
+        );
+        expect(
+          node.sentences.length,
+          inInclusiveRange(2, 3),
+          reason: '${node.id} sentences',
+        );
+        for (final entry in [
+          ...node.words,
+          ...node.sentences,
+          node.challengeSentence!,
+        ]) {
+          final gloss = splitGloss(entry);
+          expect(gloss.es, isNotEmpty, reason: '${node.id}: $entry');
+          expect(gloss.zh, isNotEmpty, reason: '${node.id}: $entry');
+        }
+      }
+    });
+
+    test('rounds and pass lines match the world', () {
+      const mainRounds = {1: 4, 2: 5, 3: 5, 4: 6, 5: 6, 6: 7, 7: 7, 8: 8};
+      const passGop = {1: 60, 2: 65, 3: 70, 4: 70, 5: 70, 6: 75, 7: 75, 8: 75};
+      for (final node in graph.levels) {
+        expect(node.passGop, passGop[node.world], reason: node.id);
+        switch (node.kind) {
+          case LevelKind.main:
+            expect(node.rounds, mainRounds[node.world], reason: node.id);
+          case LevelKind.branch:
+            expect(node.rounds, 4, reason: node.id);
+          case LevelKind.hidden:
+            expect(node.rounds, 5, reason: node.id);
+        }
+        expect(node.keySounds, isNotEmpty, reason: '${node.id} key_sounds');
+      }
+    });
+
+    test('branch titles are real, not the F0 placeholders', () {
+      for (final node in graph.levels) {
+        if (node.kind != LevelKind.branch) continue;
+        expect(
+          RegExp(r' · \d$').hasMatch(node.title),
+          isFalse,
+          reason: '${node.id} title still a placeholder: ${node.title}',
+        );
+        expect(
+          node.titleZh.contains('第 '),
+          isFalse,
+          reason: '${node.id} title_zh still a placeholder: ${node.titleZh}',
+        );
+      }
+    });
+
+    test('dialogue choices exist only on the five trigger levels', () {
+      const expected = {
+        '1-7': 'special',
+        '3-9': 'recipe',
+        '4-5': 'detour',
+        '6-5': 'letter',
+        '7-9': 'persuade',
+      };
+      for (final node in graph.levels) {
+        if (expected.containsKey(node.id)) {
+          final choices = node.choices;
+          expect(choices, isNotNull, reason: node.id);
+          expect(choices!.options, hasLength(2), reason: node.id);
+          expect(
+            choices.options.first.ending,
+            expected[node.id],
+            reason: node.id,
+          );
+          expect(choices.options.last.ending, 'normal', reason: node.id);
+        } else {
+          expect(node.choices, isNull, reason: node.id);
+        }
+      }
+    });
+
+    test('hidden triggers reference real levels and valid endings', () {
+      const endings = {'special', 'recipe', 'detour', 'letter', 'persuade'};
+      for (final node in graph.hiddenOfWorld(1) +
+          graph.hiddenOfWorld(2) +
+          graph.hiddenOfWorld(3) +
+          graph.hiddenOfWorld(4) +
+          graph.hiddenOfWorld(5) +
+          graph.hiddenOfWorld(6) +
+          graph.hiddenOfWorld(7) +
+          graph.hiddenOfWorld(8)) {
+        final trigger = node.hiddenTrigger;
+        expect(trigger, isNotNull, reason: node.id);
+        if (trigger!.level != null) {
+          expect(
+            graph.levelById(trigger.level!),
+            isNotNull,
+            reason: '${node.id} trigger level',
+          );
+        }
+        if (trigger.type == 'dialogue_choice') {
+          expect(endings, contains(trigger.ending), reason: node.id);
+        }
+      }
+    });
+  });
+
   group('level scoring', () {
     test('0 stars when a gate is not met', () {
       expect(

@@ -31,10 +31,12 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../api.dart';
+import '../brasa.dart';
 import '../level_recorder.dart';
 import '../level_scoring.dart';
 import '../levels.dart';
@@ -45,6 +47,7 @@ import '../speech.dart';
 import '../theme.dart';
 import '../voice_input.dart';
 import '../widgets/result_view.dart';
+import 'branch_page.dart';
 
 /// The six steps of every level (levels dev doc §6).
 const levelSteps = <String>[
@@ -134,6 +137,9 @@ class _LevelPageState extends State<LevelPage> {
   int _hintsUsed = 0;
   String? _hintText;
 
+  /// Ending picked at this level's dialogue branch point, if any.
+  String? _pickedEnding;
+
   // Step 5: challenge.
   Assessment? _challengeResult;
 
@@ -143,6 +149,12 @@ class _LevelPageState extends State<LevelPage> {
   int _earnedXp = 0;
   double _pronAvg = 0;
   int _revealedStars = 0;
+
+  /// Hidden levels / postcards / stickers this completion just earned,
+  /// announced on the results screen.
+  List<String> _newHidden = const [];
+  List<String> _newPostcards = const [];
+  List<String> _newStickers = const [];
 
   LevelNode get _node => widget.node;
 
@@ -177,6 +189,18 @@ class _LevelPageState extends State<LevelPage> {
   void initState() {
     super.initState();
     _initVoice();
+    // Revisit (F4): reopening a completed level that a `revisit` trigger
+    // is attached to reveals its hidden level.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final found = await widget.progress.checkRevisit(_node, widget.graph);
+      if (!mounted || found == null) return;
+      final hidden = widget.graph.levelById(found);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('✦ $mascotName 发现了秘密地点：${hidden?.titleZh ?? found}！'),
+        ),
+      );
+    });
   }
 
   Future<void> _initVoice() async {
@@ -210,7 +234,8 @@ class _LevelPageState extends State<LevelPage> {
   }
 
   /// Runs once when the results step opens: scores the level, stores the
-  /// stars + XP (and unlocks the next level) via ProgressStore.
+  /// stars + XP (and unlocks the next level) via ProgressStore, and runs
+  /// the hidden-trigger / stamp evaluation for this completion.
   Future<void> _finish() async {
     if (_completed) return;
     final scores = [
@@ -225,18 +250,29 @@ class _LevelPageState extends State<LevelPage> {
       pronunciationAvg: avg,
       passGop: _node.passGop,
     );
-    final firstTime = !widget.progress.isCompleted(_node.id);
-    final reward = LevelRewards.forKind(_node.kind);
+    final outcome = await widget.progress.completeLevel(
+      _node,
+      widget.graph,
+      stars: stars,
+      hintsUsed: _hintsUsed,
+      pronunciationAvg: avg,
+      userTurns: _userTurns,
+      challengeExcellent: _challengeExcellent,
+      endingId: _pickedEnding,
+    );
     setState(() {
       _completed = true;
       _earnedStars = stars;
-      _earnedXp = firstTime ? reward : reward ~/ 2;
+      _earnedXp = outcome.earnedXp;
       _pronAvg = avg;
+      _newHidden = outcome.newlyDiscoveredHidden;
+      _newPostcards = outcome.newPostcards;
+      _newStickers = outcome.newStickers;
     });
-    await widget.progress.completeLevel(_node, widget.graph, stars: stars);
     for (var i = 1; i <= stars; i++) {
       await Future.delayed(const Duration(milliseconds: 450));
       if (!mounted) return;
+      SystemSound.play(SystemSoundType.click);
       setState(() => _revealedStars = i);
     }
   }
@@ -474,6 +510,33 @@ class _LevelPageState extends State<LevelPage> {
     });
   }
 
+  /// Dialogue branch point (F2/F3): once the user has spoken
+  /// [LevelChoices.afterTurns] turns, the dialogue pauses and two direction
+  /// cards rise up. Picking one sends that line as the user's message (the
+  /// NPC answers it naturally) and records the ending; a trigger ending
+  /// can reveal a hidden level on the spot.
+  Future<void> _pickChoice(DialogueChoice option) async {
+    if (_pickedEnding != null || _sending) return;
+    setState(() => _pickedEnding = option.ending);
+    final found = await widget.progress.recordEnding(
+      _node.id,
+      option.ending,
+      widget.graph,
+    );
+    _input.text = option.es;
+    await _send();
+    if (found.isNotEmpty && mounted) {
+      final hidden = widget.graph.levelById(found.first);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '✦ $mascotName 发现了秘密地点：${hidden?.titleZh ?? found.first}！',
+          ),
+        ),
+      );
+    }
+  }
+
   /// Shows the next core sentence as a full-sentence suggestion (W1-W2
   /// hints are unlimited; the count is shown, not capped).
   void _showHint() {
@@ -564,25 +627,30 @@ class _LevelPageState extends State<LevelPage> {
             const SizedBox(height: 12),
             Text(
               _node.title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: SpeakMindColors.ink,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             Text(
               _node.titleZh,
-              style: const TextStyle(fontSize: 17, color: SpeakMindColors.ink),
+              style: TextStyle(
+                fontSize: 17,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 16),
-            const Card(
-              color: Color(0xFFFFF3D6),
+            Card(
+              color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Text(
                   '本关内容还在制作中：单词、句型、NPC 对话与挑战任务都还是空的。'
                   '分支关内容在 F2 填，W3 以后的世界在 F2–F3 填。先回去打主线吧。',
-                  style: TextStyle(color: SpeakMindColors.ink),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             ),
@@ -650,15 +718,18 @@ class _LevelPageState extends State<LevelPage> {
         const SizedBox(height: 12),
         Text(
           _node.title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: SpeakMindColors.ink,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Text(
           _node.titleZh,
-          style: const TextStyle(fontSize: 17, color: SpeakMindColors.ink),
+          style: TextStyle(
+            fontSize: 17,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 8),
         Text(
@@ -667,15 +738,24 @@ class _LevelPageState extends State<LevelPage> {
         ),
         const SizedBox(height: 16),
         Card(
-          color: const Color(0xFFFFF3D6),
+          color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '🐉 Brasa 说',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    const BrasaFace(mood: BrasaMood.greeting, size: 44),
+                    const SizedBox(width: 10),
+                    Text(
+                      '$mascotName 说',
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -828,7 +908,7 @@ class _LevelPageState extends State<LevelPage> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFF3D6),
+            color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -839,7 +919,7 @@ class _LevelPageState extends State<LevelPage> {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              Text('已说 $_userTurns / $_roundsTarget 轮 · 提示用了 $_hintsUsed 次（本世界不限次数）'),
+              Text('已说 $_userTurns / $_roundsTarget 轮 · 提示用了 $_hintsUsed 次'),
             ],
           ),
         ),
@@ -862,6 +942,10 @@ class _LevelPageState extends State<LevelPage> {
               ),
             ),
           ),
+        if (_node.choices != null &&
+            _pickedEnding == null &&
+            _userTurns >= _node.choices!.afterTurns)
+          _buildChoiceCards(),
         if (_hintText != null) ...[
           const SizedBox(height: 8),
           Container(
@@ -943,9 +1027,9 @@ class _LevelPageState extends State<LevelPage> {
             ),
             const Spacer(),
             if (done)
-              const Chip(
-                label: Text('✓ 轮数够了，可以下一步'),
-                backgroundColor: Color(0xFFDFF3DF),
+              Chip(
+                label: const Text('✓ 轮数够了，可以下一步'),
+                backgroundColor: SpeakMindColors.doneCard(Theme.of(context).brightness),
               ),
           ],
         ),
@@ -999,6 +1083,62 @@ class _LevelPageState extends State<LevelPage> {
     );
   }
 
+  /// Two direction cards at a dialogue branch point: tap one, or say the
+  /// line aloud — both count the same.
+  Widget _buildChoiceCards() {
+    final choices = _node.choices!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            const BrasaFace(mood: BrasaMood.thinking, size: 36),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                '岔路口：选一个方向继续聊',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        for (final option in choices.options)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Card(
+              child: InkWell(
+                onTap: _sending ? null : () => _pickChoice(option),
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        option.es,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        option.zh,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildChallenge() {
     final gloss = splitGloss(_node.challengeSentence ?? '');
     final result = _challengeResult;
@@ -1011,7 +1151,7 @@ class _LevelPageState extends State<LevelPage> {
         ),
         const SizedBox(height: 12),
         Card(
-          color: const Color(0xFFFFF3D6),
+          color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -1128,8 +1268,17 @@ class _LevelPageState extends State<LevelPage> {
           style: const TextStyle(color: SpeakMindColors.fog),
         ),
         const SizedBox(height: 16),
+        Center(
+          child: BrasaFace(
+            mood: _newHidden.isNotEmpty
+                ? BrasaMood.discover
+                : moodForStars(_earnedStars),
+            size: 96,
+          ),
+        ),
+        const SizedBox(height: 8),
         Card(
-          color: const Color(0xFFFFF3D6),
+          color: SpeakMindColors.brasaCard(Theme.of(context).brightness),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
@@ -1138,6 +1287,62 @@ class _LevelPageState extends State<LevelPage> {
             ),
           ),
         ),
+        if (_newHidden.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          for (final id in _newHidden)
+            Card(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    const Text('✦', style: TextStyle(fontSize: 20)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        '$mascotName 发现了秘密地点：'
+                        '${widget.graph.levelById(id)?.titleZh ?? id}！'
+                        '它已经出现在地图上了。',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+        if (_newPostcards.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Text(
+                '✉ 新明信片 +${_newPostcards.length}：已放进邮票册，点开可以回听上面的句子。',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
+        if (_newStickers.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Text(
+                '🏅 新贴纸 +${_newStickers.length}：${_newStickers.join('、')}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
+        if (_pickedEnding != null &&
+            widget.progress.endingsFor(_node.id).length > 1) ...[
+          const SizedBox(height: 12),
+          const Text(
+            '你发现了另一个结局！重打这关选另一边，还能看到更多。',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
         if (weakest != null) ...[
           const SizedBox(height: 16),
           const Text('最弱的一句，再听听示范：', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -1159,6 +1364,27 @@ class _LevelPageState extends State<LevelPage> {
           ),
         ],
         const SizedBox(height: 24),
+        if (_node.isFork &&
+            widget.progress.branchChoice(_node.id) == null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => BranchPage(
+                      fork: _node,
+                      graph: widget.graph,
+                      progress: widget.progress,
+                      settings: widget.settings,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.signpost_outlined),
+              label: const Text('选一条支线 →'),
+            ),
+          ),
         if (nextUnlocked)
           ElevatedButton(
             onPressed: () => Navigator.of(context).pushReplacement(
@@ -1368,7 +1594,9 @@ class _WordCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: done ? const Color(0xFFDFF3DF) : null,
+      color: done
+                ? SpeakMindColors.doneCard(Theme.of(context).brightness)
+                : null,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
