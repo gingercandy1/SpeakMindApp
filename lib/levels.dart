@@ -57,7 +57,7 @@ class LevelBranch {
 /// How a hidden level is discovered. All evaluation happens on-device
 /// (F3 builds the trigger engine); F0 only stores the declaration.
 class HiddenTrigger {
-  const HiddenTrigger({required this.type, this.level, this.note});
+  const HiddenTrigger({required this.type, this.level, this.note, this.ending, this.count});
 
   /// e.g. `three_star`, `no_hint`, `dialogue_choice`, `map_tap`,
   /// `revisit`, `over_challenge`, `no_hint_gop`, `challenge_excellent`,
@@ -70,10 +70,74 @@ class HiddenTrigger {
   /// Human-readable condition, in Chinese.
   final String? note;
 
+  /// For `dialogue_choice`: the ending id that triggers discovery
+  /// (e.g. `special`, `recipe`). Null means any ending on [level].
+  final String? ending;
+
+  /// For `over_challenge`: how many user turns count as "over"
+  /// (default: rounds target + 1). For `collect`: how many special
+  /// postcards are needed (default 5).
+  final int? count;
+
   factory HiddenTrigger.fromJson(Map<String, dynamic> j) => HiddenTrigger(
         type: j['type'] as String,
         level: j['level'] as String?,
         note: j['note'] as String?,
+        ending: j['ending'] as String?,
+        count: j['count'] as int?,
+      );
+}
+
+/// One option at a dialogue branch point (F2/F3): the NPC's question
+/// pauses and the user picks a direction (or says the line aloud).
+class DialogueChoice {
+  const DialogueChoice({
+    required this.id,
+    required this.es,
+    required this.zh,
+    required this.ending,
+  });
+
+  /// Option id, e.g. `ask_special`.
+  final String id;
+
+  /// The Spanish line the user says when picking this option.
+  final String es;
+
+  /// Chinese gloss of [es].
+  final String zh;
+
+  /// Ending id recorded when this option is picked (e.g. `special`).
+  /// Hidden `dialogue_choice` triggers match on this value.
+  final String ending;
+
+  factory DialogueChoice.fromJson(Map<String, dynamic> j) => DialogueChoice(
+        id: j['id'] as String,
+        es: j['es'] as String,
+        zh: j['zh'] as String? ?? '',
+        ending: j['ending'] as String? ?? 'normal',
+      );
+}
+
+/// The dialogue branch point of a level: after [afterTurns] user turns,
+/// the dialogue pauses and [options] are offered. Only the five levels
+/// that feed a `dialogue_choice` hidden trigger carry this (1-7, 3-9,
+/// 4-5, 6-5, 7-9).
+class LevelChoices {
+  const LevelChoices({required this.afterTurns, required this.options});
+
+  /// User turns completed before the options appear (1-3).
+  final int afterTurns;
+
+  /// Exactly two options: the trigger option first, the normal one second.
+  final List<DialogueChoice> options;
+
+  factory LevelChoices.fromJson(Map<String, dynamic> j) => LevelChoices(
+        afterTurns: j['after_turns'] as int? ?? 2,
+        options: [
+          for (final o in (j['options'] as List? ?? const []))
+            DialogueChoice.fromJson(o as Map<String, dynamic>),
+        ],
       );
 }
 
@@ -171,6 +235,7 @@ class LevelNode {
     this.branches,
     this.hiddenTrigger,
     this.route,
+    this.choices,
     required this.contentTodo,
   });
 
@@ -243,6 +308,10 @@ class LevelNode {
   /// Branch route code, for branch nodes only.
   final String? route;
 
+  /// Dialogue branch point (only the five levels feeding a
+  /// `dialogue_choice` hidden trigger). Null elsewhere.
+  final LevelChoices? choices;
+
   /// True while the per-level teaching content is still unwritten (F1+).
   final bool contentTodo;
 
@@ -288,6 +357,9 @@ class LevelNode {
                 j['hidden_trigger'] as Map<String, dynamic>,
               ),
         route: j['route'] as String?,
+        choices: j['choices'] == null
+            ? null
+            : LevelChoices.fromJson(j['choices'] as Map<String, dynamic>),
         contentTodo: j['content_todo'] == true,
       );
 }

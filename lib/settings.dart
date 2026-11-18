@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A language the app can practise.
@@ -85,11 +85,33 @@ class SettingsStore extends ChangeNotifier {
 
   static const _serverUrlKey = 'server_url';
   static const _languageKey = 'language';
+  static const _themeKey = 'theme_mode';
 
   final SharedPreferences _prefs;
 
   static Future<SettingsStore> load() async =>
       SettingsStore(await SharedPreferences.getInstance());
+
+  /// App appearance (F4 dark mode): system default, light, or dark.
+  ThemeMode get themeMode {
+    return switch (_prefs.getString(_themeKey)) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      _ => ThemeMode.system,
+    };
+  }
+
+  Future<void> setThemeMode(ThemeMode value) async {
+    await _prefs.setString(
+      _themeKey,
+      switch (value) {
+        ThemeMode.light => 'light',
+        ThemeMode.dark => 'dark',
+        _ => 'system',
+      },
+    );
+    notifyListeners();
+  }
 
   String get serverUrl => _prefs.getString(_serverUrlKey) ?? defaultServerUrl;
 

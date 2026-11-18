@@ -71,7 +71,11 @@ class _HomePageState extends State<HomePage> {
             progress: widget.progress,
             settings: widget.settings,
           ),
-          StampsPage(graph: graph, progress: widget.progress),
+          StampsPage(
+            graph: graph,
+            progress: widget.progress,
+            settings: widget.settings,
+          ),
           PracticePage(settings: widget.settings),
           ProfilePage(
             graph: graph,

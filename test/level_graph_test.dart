@@ -97,14 +97,20 @@ void main() {
       expect(store.travellerLevel, 1);
     });
 
-    test('completing a level unlocks next + branch entries, awards XP',
+    test('completing a fork unlocks next only; branch entry needs a pick',
         () async {
       final node = graph.levelById('1-5')!;
       await store.completeLevel(node, graph, stars: 3);
       expect(store.stars('1-5'), 3);
       expect(store.xp, LevelRewards.mainline);
       expect(store.isUnlocked('1-6'), isTrue);
+      // F2 rule: finishing the fork does NOT auto-unlock branch entries.
+      expect(store.isUnlocked('1B-1'), isFalse);
+      // Picking the route unlocks its first level; first pick wins.
+      expect(await store.chooseBranch('1-5', 'mar', graph), isTrue);
+      expect(store.branchChoice('1-5'), 'mar');
       expect(store.isUnlocked('1B-1'), isTrue);
+      expect(await store.chooseBranch('1-5', 'mar', graph), isFalse);
     });
 
     test('replay keeps best stars and awards half XP', () async {
