@@ -47,6 +47,7 @@ import '../settings.dart';
 import '../speech.dart';
 import '../theme.dart';
 import '../voice_input.dart';
+import '../widgets/hero_mic.dart';
 import '../widgets/result_view.dart';
 import 'branch_page.dart';
 
@@ -209,7 +210,7 @@ class _LevelPageState extends State<LevelPage> {
       final hidden = widget.graph.levelById(found);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('✦ $mascotName 发现了秘密地点：${hidden?.titleZh ?? found}！'),
+          content: Text('★ $mascotName 发现了秘密地点：${hidden?.titleZh ?? found}！'),
         ),
       );
     });
@@ -606,7 +607,7 @@ class _LevelPageState extends State<LevelPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '✦ $mascotName 发现了秘密地点：${hidden?.titleZh ?? found.first}！',
+            '★ $mascotName 发现了秘密地点：${hidden?.titleZh ?? found.first}！',
           ),
         ),
       );
@@ -703,9 +704,8 @@ class _LevelPageState extends State<LevelPage> {
             const SizedBox(height: 12),
             Text(
               _node.title,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+              style: SpeakMindText.spanish(
+                size: 22,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -743,12 +743,21 @@ class _LevelPageState extends State<LevelPage> {
       appBar: AppBar(
         title: Text('${_node.id} ${_node.title}'),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(24),
+          preferredSize: const Size.fromHeight(46),
           child: Padding(
             padding: const EdgeInsets.only(bottom: 6),
-            child: Text(
-              '${levelSteps[_step]} · 第 ${_step + 1} 步 / 共 6 步',
-              style: const TextStyle(fontSize: 12, color: SpeakMindColors.fog),
+            child: Column(
+              children: [
+                _StepDots(step: _step),
+                const SizedBox(height: 4),
+                Text(
+                  '${levelSteps[_step]} · 第 ${_step + 1} 步 / 共 6 步',
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    color: SpeakMindColors.fog,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -794,9 +803,8 @@ class _LevelPageState extends State<LevelPage> {
         const SizedBox(height: 12),
         Text(
           _node.title,
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+          style: SpeakMindText.spanish(
+            size: 22,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
@@ -826,10 +834,7 @@ class _LevelPageState extends State<LevelPage> {
                     const SizedBox(width: 10),
                     Text(
                       '$mascotName 说',
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ],
                 ),
@@ -855,7 +860,7 @@ class _LevelPageState extends State<LevelPage> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  Text(opening, style: const TextStyle(fontSize: 17, height: 1.4)),
+                  Text(opening, style: SpeakMindText.spanish(size: 17)),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
                     onPressed: _playingOpening ? null : _playOpening,
@@ -976,6 +981,20 @@ class _LevelPageState extends State<LevelPage> {
     );
   }
 
+  /// The NPC's display name, parsed from the prompt ("Eres Carmen, …").
+  /// Named NPCs first (Don José's two words need the full match), then any
+  /// other capitalised name; role-only prompts fall back to a generic label.
+  String get _npcName {
+    final prompt = _node.npcPrompt ?? '';
+    final named =
+        RegExp(r'^Eres (Don José|Carmen|Pablo|Rosa)\b').firstMatch(prompt);
+    if (named != null) return named.group(1)!;
+    final any =
+        RegExp(r'^Eres ([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)').firstMatch(prompt);
+    if (any != null) return any.group(1)!;
+    return '对话伙伴';
+  }
+
   Widget _buildDialogue() {
     final done = _dialogueDone;
     return Column(
@@ -987,15 +1006,41 @@ class _LevelPageState extends State<LevelPage> {
             color: SpeakMindColors.chispaCard(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Text(
-                '任务：${_node.task ?? ''}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: SpeakMindColors.deepTeal,
+                child: Text(
+                  _npcName.characters.first,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              const SizedBox(height: 4),
-              Text('已说 $_userTurns / $_roundsTarget 轮 · 提示用了 $_hintsUsed 次'),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _npcName,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(
+                      '任务：${_node.task ?? ''}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '已说 $_userTurns / $_roundsTarget 轮 · 提示用了 $_hintsUsed 次',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -1138,20 +1183,30 @@ class _LevelPageState extends State<LevelPage> {
             ],
           ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FilledButton.icon(
-              onPressed: _sending ? null : _toggleVoice,
-              icon: Icon(
-                _listening ? Icons.stop_rounded : Icons.mic,
-                color: _listening ? Theme.of(context).colorScheme.error : null,
-              ),
-              label: Text(_listening ? '停止，说完了' : '语音输入'),
+            const Spacer(),
+            Column(
+              children: [
+                HeroMic(
+                  listening: _listening,
+                  enabled: !_sending,
+                  onPressed: _toggleVoice,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _listening ? '正在听… 点一下停止' : '点麦克风说话',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            OutlinedButton(
-              onPressed: _sending ? null : _send,
-              child: const Text('发送'),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton(
+                  onPressed: _sending ? null : _send,
+                  child: const Text('发送'),
+                ),
+              ),
             ),
           ],
         ),
@@ -1343,6 +1398,19 @@ class _LevelPageState extends State<LevelPage> {
           textAlign: TextAlign.center,
           style: const TextStyle(color: SpeakMindColors.fog),
         ),
+        const SizedBox(height: 12),
+        _XpBar(
+          before: (widget.progress.xp - _earnedXp) %
+                  LevelRewards.xpPerLevel /
+              LevelRewards.xpPerLevel,
+          after: widget.progress.xp % LevelRewards.xpPerLevel /
+              LevelRewards.xpPerLevel,
+          levelBefore:
+              (widget.progress.xp - _earnedXp) ~/ LevelRewards.xpPerLevel +
+                  1,
+          levelAfter: widget.progress.travellerLevel,
+          earnedXp: _earnedXp,
+        ),
         const SizedBox(height: 16),
         Center(
           child: ChispaFace(
@@ -1365,48 +1433,57 @@ class _LevelPageState extends State<LevelPage> {
         ),
         if (_newHidden.isNotEmpty) ...[
           const SizedBox(height: 12),
-          for (final id in _newHidden)
-            Card(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Row(
-                  children: [
-                    const Text('✦', style: TextStyle(fontSize: 20)),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        '$mascotName 发现了秘密地点：'
-                        '${widget.graph.levelById(id)?.titleZh ?? id}！'
-                        '它已经出现在地图上了。',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+          for (var i = 0; i < _newHidden.length; i++)
+            _PopIn(
+              delay: Duration(milliseconds: 120 * i),
+              child: Card(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    children: [
+                      const Text('★', style: TextStyle(fontSize: 20)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          '$mascotName 发现了秘密地点：'
+                          '${widget.graph.levelById(_newHidden[i])?.titleZh ?? _newHidden[i]}！'
+                          '它已经出现在地图上了。',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
         ],
         if (_newPostcards.isNotEmpty) ...[
           const SizedBox(height: 12),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Text(
-                '✉ 新明信片 +${_newPostcards.length}：已放进邮票册，点开可以回听上面的句子。',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+          _PopIn(
+            delay: const Duration(milliseconds: 120),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Text(
+                  '✉ 新明信片 +${_newPostcards.length}：已放进邮票册，点开可以回听上面的句子。',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),
         ],
         if (_newStickers.isNotEmpty) ...[
           const SizedBox(height: 12),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Text(
-                '🏅 新贴纸 +${_newStickers.length}：${_newStickers.join('、')}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+          _PopIn(
+            delay: const Duration(milliseconds: 240),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Text(
+                  '🏅 新贴纸 +${_newStickers.length}：${_newStickers.join('、')}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),
@@ -1501,6 +1578,9 @@ class _LevelPageState extends State<LevelPage> {
     );
   }
 
+  /// Bottom action bar (doc p.12): three fixed slots, so the buttons never
+  /// jump when the step changes. Left: back a step (empty on step 1).
+  /// Centre: the step's skip action, if it has one. Right: next.
   Widget _buildNavBar() {
     final busy = _recPhase != _RecPhase.idle || _sending;
     final canNext = switch (_step) {
@@ -1521,20 +1601,25 @@ class _LevelPageState extends State<LevelPage> {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
       child: Row(
         children: [
-          if (_step > 0)
-            TextButton(
-              onPressed: busy ? null : () => _goToStep(_step - 1),
-              child: const Text('← 上一步'),
-            )
-          else
-            const Spacer(),
-          const Spacer(),
-          if (_step == 1)
-            TextButton(
-              onPressed: busy ? null : () => _goToStep(2),
-              child: const Text('跳过热身'),
+          SizedBox(
+            width: 92,
+            child: _step > 0
+                ? TextButton(
+                    onPressed: busy ? null : () => _goToStep(_step - 1),
+                    child: const Text('← 上一步'),
+                  )
+                : const SizedBox.shrink(),
+          ),
+          Expanded(
+            child: Center(
+              child: _step == 1
+                  ? TextButton(
+                      onPressed: busy ? null : () => _goToStep(2),
+                      child: const Text('跳过热身'),
+                    )
+                  : const SizedBox.shrink(),
             ),
-          const SizedBox(width: 8),
+          ),
           ElevatedButton(
             onPressed: busy || !canNext ? null : () => _goToStep(_step + 1),
             child: Text(switch (_step) {
@@ -1545,6 +1630,153 @@ class _LevelPageState extends State<LevelPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The six-step progress dots (doc p.12): done steps are filled teal, the
+/// current step is amber with a dark ring, upcoming steps are hollow.
+class _StepDots extends StatelessWidget {
+  const _StepDots({required this.step});
+
+  final int step;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < levelSteps.length; i++)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 3),
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: i < step
+                  ? SpeakMindColors.actionGreen
+                  : i == step
+                      ? SpeakMindColors.amber
+                      : Colors.transparent,
+              border: Border.all(
+                color: i < step
+                    ? SpeakMindColors.actionGreen
+                    : i == step
+                        ? SpeakMindColors.ink
+                        : SpeakMindColors.fog,
+                width: i == step ? 1.5 : 1,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// XP growth bar on the results page (doc p.12): animates from the
+/// pre-completion fraction to the new one in 600ms. When the level
+/// completes a level-up, the bar fills completely and the new level shows.
+class _XpBar extends StatelessWidget {
+  const _XpBar({
+    required this.before,
+    required this.after,
+    required this.levelBefore,
+    required this.levelAfter,
+    required this.earnedXp,
+  });
+
+  final double before;
+  final double after;
+  final int levelBefore;
+  final int levelAfter;
+  final int earnedXp;
+
+  @override
+  Widget build(BuildContext context) {
+    final leveledUp = levelAfter > levelBefore;
+    return Column(
+      children: [
+        Row(
+          children: [
+            Text(
+              'Lv.$levelBefore',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const Spacer(),
+            Text(
+              leveledUp
+                  ? '升级！Lv.$levelAfter'
+                  : '+$earnedXp XP · Lv.$levelAfter',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: SpeakMindColors.amber,
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: before, end: leveledUp ? 1.0 : after),
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOut,
+          builder: (context, value, _) => ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: value,
+              minHeight: 10,
+              backgroundColor: SpeakMindColors.fog.withValues(alpha: 0.4),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                SpeakMindColors.amber,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Entrance pop for a newly earned item on the results page (doc p.12:
+/// stamp fragments fly into the stamp book). A full cross-screen flight
+/// is not feasible in this layout, so the card pops in with a scale +
+/// fade after a short stagger delay, then rests in place.
+class _PopIn extends StatefulWidget {
+  const _PopIn({required this.delay, required this.child});
+
+  final Duration delay;
+  final Widget child;
+
+  @override
+  State<_PopIn> createState() => _PopInState();
+}
+
+class _PopInState extends State<_PopIn> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 400),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(widget.delay, () {
+      if (mounted) _c.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: Tween(begin: 0.6, end: 1.0).animate(
+        CurvedAnimation(parent: _c, curve: Curves.easeOutBack),
+      ),
+      child: FadeTransition(opacity: _c, child: widget.child),
     );
   }
 }
@@ -1851,9 +2083,12 @@ class _DialogueBubble extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
                 decoration: BoxDecoration(
                   color: mine
-                      ? scheme.primaryContainer
-                      : scheme.surfaceContainerHighest,
+                      ? SpeakMindColors.bubbleMine
+                      : SpeakMindColors.bubbleTheirs(theme.brightness),
                   borderRadius: BorderRadius.circular(16),
+                  border: mine
+                      ? null
+                      : Border.all(color: scheme.outlineVariant),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1864,7 +2099,7 @@ class _DialogueBubble extends StatelessWidget {
                         message.content,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: mine
-                              ? scheme.onPrimaryContainer
+                              ? SpeakMindColors.onBubbleMine
                               : scheme.onSurface,
                         ),
                       ),

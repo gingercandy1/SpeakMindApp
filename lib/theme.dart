@@ -57,6 +57,43 @@ abstract class SpeakMindColors {
       brightness == Brightness.dark
           ? const Color(0xFF26302B)
           : const Color(0xFFEDE7D8);
+
+  /// Chat bubble of the partner (NPC / Chispa): white card in light mode,
+  /// dark card in dark mode. The old `surfaceContainerHighest` bubble was
+  /// invisible on the cream page.
+  static Color bubbleTheirs(Brightness brightness) =>
+      brightness == Brightness.dark ? darkCard : Colors.white;
+
+  /// Chat bubble of the user: deep teal, white text.
+  static const Color bubbleMine = deepTeal;
+  static const Color onBubbleMine = Colors.white;
+}
+
+/// Type scale from the final planning doc (p.11): title 22, level name 17,
+/// body 15, caption 12.5. Spanish words use the same font, bold, with
+/// slightly wider tracking.
+abstract class SpeakMindText {
+  static const TextStyle title = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.bold,
+  );
+
+  static const TextStyle levelName = TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.bold,
+  );
+
+  static const TextStyle body = TextStyle(fontSize: 15);
+
+  static const TextStyle caption = TextStyle(fontSize: 12.5);
+
+  static TextStyle spanish({required double size, Color? color}) =>
+      TextStyle(
+        fontSize: size,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0.6,
+        color: color,
+      );
 }
 
 /// The app theme: cream background, deep-teal primary, fully round buttons,
@@ -76,6 +113,31 @@ ThemeData speakMindTheme() {
   return ThemeData(
     colorScheme: scheme,
     scaffoldBackgroundColor: SpeakMindColors.cream,
+    textTheme: const TextTheme(
+      titleLarge: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+        color: SpeakMindColors.ink,
+      ),
+      titleMedium: TextStyle(
+        fontSize: 17,
+        fontWeight: FontWeight.bold,
+        color: SpeakMindColors.ink,
+      ),
+      bodyLarge: TextStyle(fontSize: 15, color: SpeakMindColors.ink),
+      bodyMedium: TextStyle(fontSize: 15, color: SpeakMindColors.ink),
+      bodySmall: TextStyle(fontSize: 12.5, color: SpeakMindColors.ink),
+      headlineSmall: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: SpeakMindColors.ink,
+      ),
+      labelLarge: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.bold,
+        color: SpeakMindColors.ink,
+      ),
+    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: SpeakMindColors.cream,
       foregroundColor: SpeakMindColors.ink,
@@ -123,6 +185,31 @@ ThemeData speakMindDarkTheme() {
     colorScheme: scheme,
     scaffoldBackgroundColor: SpeakMindColors.darkSurface,
     cardColor: SpeakMindColors.darkCard,
+    textTheme: const TextTheme(
+      titleLarge: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFFFFF7EA),
+      ),
+      titleMedium: TextStyle(
+        fontSize: 17,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFFFFF7EA),
+      ),
+      bodyLarge: TextStyle(fontSize: 15, color: Color(0xFFFFF7EA)),
+      bodyMedium: TextStyle(fontSize: 15, color: Color(0xFFFFF7EA)),
+      bodySmall: TextStyle(fontSize: 12.5, color: Color(0xFFFFF7EA)),
+      headlineSmall: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFFFFF7EA),
+      ),
+      labelLarge: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFFFFF7EA),
+      ),
+    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: SpeakMindColors.darkSurface,
       foregroundColor: Color(0xFFFFF7EA),

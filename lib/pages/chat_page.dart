@@ -1,10 +1,13 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../api.dart';
+import '../chispa.dart';
 import '../models.dart';
 import '../settings.dart';
 import '../speech.dart';
+import '../theme.dart';
 import '../voice_input.dart';
+import '../widgets/hero_mic.dart';
 
 /// Free conversation with an AI partner in the language being practised.
 ///
@@ -167,6 +170,38 @@ class _ChatPageState extends State<ChatPage> {
       body: SafeArea(
         child: Column(
           children: [
+            // Partner header (doc p.12): the NPC is visible at the top of
+            // the conversation, not just a name in the app bar.
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              decoration: BoxDecoration(
+                color: SpeakMindColors.chispaCard(theme.brightness),
+                border: Border(
+                  bottom: BorderSide(color: theme.colorScheme.outlineVariant),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const ChispaFace(mood: ChispaMood.greeting, size: 44),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Chispa · 陪练',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        Text(
+                          '随便聊聊，练练${_language.name}口语',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: ListView.builder(
                 controller: _scroll,
@@ -244,40 +279,48 @@ class _ChatPageState extends State<ChatPage> {
                 color: theme.colorScheme.surfaceContainer,
                 border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant)),
               ),
-              padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _input,
-                      minLines: 1,
-                      maxLines: 4,
-                      maxLength: 500,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _send(),
-                      decoration: InputDecoration(
-                        hintText: _language.code == 'es' ? 'Escribe en español…' : 'Type in English…',
-                        border: const OutlineInputBorder(),
-                        isDense: true,
-                        counterText: '',
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _input,
+                          minLines: 1,
+                          maxLines: 4,
+                          maxLength: 500,
+                          textInputAction: TextInputAction.send,
+                          onSubmitted: (_) => _send(),
+                          decoration: InputDecoration(
+                            hintText: _language.code == 'es' ? 'Escribe en español…' : 'Type in English…',
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                            counterText: '',
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      IconButton.filled(
+                        tooltip: '发送',
+                        onPressed: _sending ? null : _send,
+                        icon: const Icon(Icons.send),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                  IconButton.filledTonal(
-                    tooltip: _listening ? '停止语音' : '语音输入',
-                    onPressed: _sending ? null : _toggleVoice,
-                    icon: Icon(
-                      _listening ? Icons.stop_rounded : Icons.mic,
-                      color: _listening ? theme.colorScheme.error : null,
-                    ),
+                  const SizedBox(height: 12),
+                  // The hero mic (doc p.11): 72 diameter, the biggest
+                  // button in the app, centred at the bottom.
+                  HeroMic(
+                    listening: _listening,
+                    enabled: !_sending,
+                    onPressed: _toggleVoice,
                   ),
-                  const SizedBox(width: 4),
-                  IconButton.filled(
-                    tooltip: '发送',
-                    onPressed: _sending ? null : _send,
-                    icon: const Icon(Icons.send),
+                  const SizedBox(height: 6),
+                  Text(
+                    _listening ? '正在听… 点一下停止' : '点麦克风说话',
+                    style: theme.textTheme.bodySmall,
                   ),
                 ],
               ),
@@ -316,8 +359,13 @@ class _Bubble extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
                 decoration: BoxDecoration(
-                  color: mine ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+                  color: mine
+                      ? SpeakMindColors.bubbleMine
+                      : SpeakMindColors.bubbleTheirs(theme.brightness),
                   borderRadius: BorderRadius.circular(16),
+                  border: mine
+                      ? null
+                      : Border.all(color: scheme.outlineVariant),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -327,7 +375,9 @@ class _Bubble extends StatelessWidget {
                       child: SelectableText(
                         message.content,
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          color: mine ? scheme.onPrimaryContainer : scheme.onSurface,
+                          color: mine
+                              ? SpeakMindColors.onBubbleMine
+                              : scheme.onSurface,
                         ),
                       ),
                     ),

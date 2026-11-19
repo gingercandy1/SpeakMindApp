@@ -10,6 +10,7 @@ import '../api.dart';
 import '../models.dart';
 import '../settings.dart';
 import '../speech.dart';
+import '../theme.dart';
 import '../widgets/result_view.dart';
 import 'chat_page.dart';
 import 'settings_page.dart';
@@ -312,7 +313,10 @@ class _PracticePageState extends State<PracticePage> {
                     if (result == null)
                       Text(
                         _sentence,
-                        style: theme.textTheme.headlineSmall?.copyWith(height: 1.4),
+                        style: widget.settings.language.code == 'es'
+                            ? SpeakMindText.spanish(size: 24)
+                            : theme.textTheme.headlineSmall
+                                ?.copyWith(height: 1.4),
                       )
                     else
                       ResultView(
