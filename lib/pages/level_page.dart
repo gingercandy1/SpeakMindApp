@@ -42,12 +42,14 @@ import '../level_recorder.dart';
 import '../level_scoring.dart';
 import '../levels.dart';
 import '../models.dart';
+import '../npc_art.dart';
 import '../progress.dart';
 import '../settings.dart';
 import '../speech.dart';
 import '../theme.dart';
 import '../voice_input.dart';
 import '../widgets/hero_mic.dart';
+import '../widgets/typewriter_text.dart';
 import '../widgets/result_view.dart';
 import 'branch_page.dart';
 
@@ -982,6 +984,67 @@ class _LevelPageState extends State<LevelPage> {
   }
 
   /// The NPC's display name, parsed from the prompt ("Eres Carmen, …").
+  /// Index of the latest NPC message (shown in the RPG box); -1 if none.
+  int get _latestNpcIndex {
+    for (var i = _messages.length - 1; i >= 0; i--) {
+      if (!_messages[i].fromUser) return i;
+    }
+    return -1;
+  }
+
+  /// True while the branch-point choice cards are showing (they take over
+  /// from the reply options).
+  bool get _choiceCardsShowing =>
+      _node.choices != null &&
+      _pickedEnding == null &&
+      _userTurns >= _node.choices!.afterTurns;
+
+  /// RPG reply options: the level's model sentences as tappable lines.
+  /// Tapping one sends it as the user's turn (same as the branch-point
+  /// choice cards); the mic below stays for free speech.
+  Widget _buildReplyOptions() {
+    final lines = [
+      for (final s in _node.sentences) splitGloss(s).es,
+    ].where((s) => s.isNotEmpty).take(3).toList();
+    if (lines.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 12),
+        Text(
+          '轮到你了，你可以这样说：',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 6),
+        for (final line in lines)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: OutlinedButton(
+              onPressed: _sending ? null : () => _sayLine(line),
+              style: OutlinedButton.styleFrom(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(line, style: SpeakMindText.spanish(size: 16)),
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// Sends [line] as the user's turn, like picking a branch-point choice.
+  Future<void> _sayLine(String line) async {
+    if (_sending) return;
+    _input.text = line;
+    await _send();
+  }
+
   /// Named NPCs first (Don José's two words need the full match), then any
   /// other capitalised name; role-only prompts fall back to a generic label.
   String get _npcName {
@@ -1008,18 +1071,7 @@ class _LevelPageState extends State<LevelPage> {
           ),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: SpeakMindColors.deepTeal,
-                child: Text(
-                  _npcName.characters.first,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+              NpcPortrait(npcName: _npcName, size: 56),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -1045,13 +1097,25 @@ class _LevelPageState extends State<LevelPage> {
           ),
         ),
         const SizedBox(height: 12),
-        for (final message in _messages)
+        // Earlier turns stay as compact bubbles; the latest NPC line gets
+        // the RPG dialogue box (portrait + name tag + typewriter).
+        for (final message in _messages.take(
+          _latestNpcIndex < 0 ? _messages.length : _latestNpcIndex,
+        ))
           _DialogueBubble(
             message: message,
             onSpeak: message.fromUser
                 ? null
                 : () => _playText(message.content),
           ),
+        if (_latestNpcIndex >= 0)
+          _RpgDialogueBox(
+            npcName: _npcName,
+            message: _messages[_latestNpcIndex],
+            onReplay: () => _playText(_messages[_latestNpcIndex].content),
+          ),
+        if (!_sending && !done && !_choiceCardsShowing)
+          _buildReplyOptions(),
         if (_sending)
           const Align(
             alignment: Alignment.centerLeft,
@@ -2158,3 +2222,89 @@ class _DialogueBubble extends StatelessWidget {
     );
   }
 }
+
+/// RPG-style dialogue box: the current NPC line with the speaker's real
+/// portrait, a name tag, and typewriter text (tap to show it all at once).
+class _RpgDialogueBox extends StatelessWidget {
+  const _RpgDialogueBox({
+    required this.npcName,
+    required this.message,
+    required this.onReplay,
+  });
+
+  final String npcName;
+  final ChatMessage message;
+  final VoidCallback onReplay;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: SpeakMindColors.chispaCard(theme.brightness),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: SpeakMindColors.ink, width: 1.5),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          NpcPortrait(npcName: npcName, size: 64),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: SpeakMindColors.amber,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        npcName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: SpeakMindColors.ink,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    InkResponse(
+                      onTap: onReplay,
+                      radius: 18,
+                      child: Icon(
+                        Icons.volume_up_outlined,
+                        size: 20,
+                        color: theme.colorScheme.onSurfaceVariant,
+                        semanticLabel: '朗读',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                TypewriterText(
+                  key: ValueKey(message.content),
+                  text: message.content,
+                  style: SpeakMindText.spanish(size: 17),
+                ),
+                if (message.tip != null) ...[
+                  const SizedBox(height: 8),
+                  Text(message.tip!, style: theme.textTheme.bodySmall),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
