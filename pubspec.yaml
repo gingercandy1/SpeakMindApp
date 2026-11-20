@@ -68,6 +68,8 @@ flutter:
   # F0: JSON-driven level graph (8 worlds, 138 nodes).
   assets:
     - assets/levels_es.json
+    - assets/worlds/
+    - assets/npc/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,12 +1,12 @@
 /// Vector travel maps for all eight worlds (design doc p.1 / p.6).
 ///
-/// Each world's mainline nodes sit on an illustrated scene drawn with
-/// [CustomPaint] — no bitmap assets, so it works with the project's S1
-/// style (thick ink outlines, flat colour, cream paper):
+/// Each world's mainline nodes sit on its scene illustration — a real
+/// bitmap (see [worldSceneAsset]) painted over the vector landmark band,
+/// so the map shows the travel-journal artwork instead of flat shapes.
+/// The vector landmark stays underneath as a fallback when the asset
+/// cannot load (e.g. widget tests, which do not bundle assets).
+/// On top of the scene:
 ///
-/// * a landmark scene per world at the top (Madrid clock tower, a
-///   Mediterranean sailboat, a Mexican pyramid, Andean peaks, the Buenos
-///   Aires obelisk, a Camino shell, a film-city marquee, a globe);
 /// * a winding dashed route through the node centres, with amber beads
 ///   between nodes;
 /// * soft fog puffs over locked nodes ("you can always see that something
@@ -26,6 +26,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../chispa.dart';
 import '../levels.dart';
+import '../npc_art.dart';
 import '../progress.dart';
 import '../theme.dart';
 
@@ -96,6 +97,26 @@ class WorldVectorMap extends StatelessWidget {
                     marker: marker,
                     markerTarget:
                         currentIndex >= 0 ? positions[currentIndex] : null,
+                  ),
+                ),
+              ),
+              // Real scene illustration over the painted landmark band
+              // (same geometry). If the asset cannot load — widget tests
+              // do not bundle assets — the painted landmark shows through.
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: _kSkylineH,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20),
+                  ),
+                  child: Image.asset(
+                    worldSceneAsset(world.id),
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                    errorBuilder: (_, _, _) => const SizedBox.shrink(),
                   ),
                 ),
               ),
