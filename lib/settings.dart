@@ -55,7 +55,17 @@ const builtInSentencesEs = <String>[
   'Fue la mejor decisión que he tomado en mi vida.',
 ];
 
+/// Spanish first (the app's direction since 2026-11-17); English is paused
+/// but still available. The default language is the first entry.
 const languages = <AppLanguage>[
+  AppLanguage(
+    code: 'es',
+    label: 'ES',
+    name: '西班牙语',
+    ttsLocale: 'es-ES',
+    builtIn: builtInSentencesEs,
+    customKey: 'custom_sentences_es',
+  ),
   AppLanguage(
     code: 'en',
     label: 'EN',
@@ -64,14 +74,6 @@ const languages = <AppLanguage>[
     builtIn: builtInSentences,
     // The key English sentences were always stored under.
     customKey: 'custom_sentences',
-  ),
-  AppLanguage(
-    code: 'es',
-    label: 'ES',
-    name: '西班牙语',
-    ttsLocale: 'es-ES',
-    builtIn: builtInSentencesEs,
-    customKey: 'custom_sentences_es',
   ),
 ];
 

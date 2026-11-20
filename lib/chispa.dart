@@ -50,9 +50,11 @@ ChispaMood moodForStars(int stars) => switch (stars) {
       _ => ChispaMood.thinking,
     };
 
-/// Chispa's face, drawn as a vector (S1 thick-outline flat colour):
-/// deep-green round head, two small orange horns, big oval eyes,
-/// small smile, red scarf arc. No bitmap assets.
+/// Chispa's face and body, drawn as a vector (S1 thick-outline flat
+/// colour): deep-green round head, two small orange horns, big oval eyes,
+/// small smile, red scarf at the neck, green body with a plain light-green
+/// belly, small orange wings and a row of triangular dorsal fins. No
+/// bitmap assets.
 class ChispaFace extends StatelessWidget {
   const ChispaFace({super.key, required this.mood, this.size = 72});
 
@@ -76,16 +78,73 @@ class _ChispaPainter extends CustomPainter {
   final ChispaMood mood;
 
   static const _green = Color(0xFF43A047);
+  static const _bellyGreen = Color(0xFFA5D6A7);
   static const _hornOrange = Color(0xFFF28C28);
   static const _scarfRed = Color(0xFFC7502B);
   static const _ink = Color(0xFF2B2118);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final r = size.width / 2 * 0.9;
-    final headCenter = Offset(cx, cy + r * 0.08);
+    final s = size.width;
+    final cx = s / 2;
+    // Head is the top third; the body fills the rest.
+    final r = s * 0.27;
+    final headCenter = Offset(cx, s * 0.30);
+    final line = Paint()
+      ..color = _ink
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.max(2, r * 0.08)
+      ..strokeCap = StrokeCap.round;
+
+    // Wings first (behind the body).
+    _wing(canvas, cx, s, -1);
+    _wing(canvas, cx, s, 1);
+
+    // Body: green rounded shape with a plain light-green belly.
+    final bodyRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(
+        center: Offset(cx, s * 0.74),
+        width: s * 0.52,
+        height: s * 0.42,
+      ),
+      const Radius.circular(0.5),
+    );
+    canvas.drawRRect(bodyRect, Paint()..color = _green);
+    canvas.drawRRect(bodyRect, line);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(cx, s * 0.78),
+        width: s * 0.32,
+        height: s * 0.26,
+      ),
+      Paint()..color = _bellyGreen,
+    );
+
+    // Dorsal fins: three small triangles along the body's top edge,
+    // peeking out from behind the head.
+    final fin = Paint()..color = _hornOrange;
+    for (final dir in [-1.0, 1.0]) {
+      final base = Offset(cx + dir * r * 0.95, s * 0.56);
+      canvas.drawPath(
+        Path()
+          ..moveTo(base.dx, base.dy - r * 0.34)
+          ..lineTo(base.dx + dir * r * 0.22, base.dy)
+          ..lineTo(base.dx - dir * r * 0.22, base.dy)
+          ..close(),
+        fin,
+      );
+      canvas.drawPath(
+        Path()
+          ..moveTo(base.dx, base.dy - r * 0.34)
+          ..lineTo(base.dx + dir * r * 0.22, base.dy)
+          ..lineTo(base.dx - dir * r * 0.22, base.dy)
+          ..close(),
+        Paint()
+          ..color = _ink
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = math.max(1.5, r * 0.05),
+      );
+    }
 
     // Horns: two small orange triangles on top of the head.
     final horn = Paint()..color = _hornOrange;
@@ -98,41 +157,45 @@ class _ChispaPainter extends CustomPainter {
           ..lineTo(baseB.dx, baseB.dy)..close(),
         horn,
       );
+      canvas.drawPath(
+        Path()..moveTo(tip.dx, tip.dy)..lineTo(baseA.dx, baseA.dy)
+          ..lineTo(baseB.dx, baseB.dy)..close(),
+        Paint()
+          ..color = _ink
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = math.max(1.5, r * 0.05)
+          ..strokeJoin = StrokeJoin.round,
+      );
     }
 
     // Head: green circle with a thick dark outline (S1 style).
     canvas.drawCircle(headCenter, r, Paint()..color = _green);
-    canvas.drawCircle(
-      headCenter,
-      r,
-      Paint()
-        ..color = _ink
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(2, r * 0.07),
-    );
+    canvas.drawCircle(headCenter, r, line);
 
-    // Scarf: red arc band along the bottom of the head.
-    canvas.drawArc(
-      Rect.fromCircle(center: headCenter, radius: r * 0.99),
-      math.pi * 0.18,
-      math.pi * 0.64,
-      false,
-      Paint()
-        ..color = _scarfRed
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = r * 0.17
-        ..strokeCap = StrokeCap.round,
+    // Scarf: red band across the neck, with a small fluttering end.
+    final scarfBand = RRect.fromRectAndRadius(
+      Rect.fromCenter(
+        center: Offset(cx, s * 0.545),
+        width: r * 1.7,
+        height: r * 0.34,
+      ),
+      Radius.circular(r * 0.17),
     );
+    canvas.drawRRect(scarfBand, Paint()..color = _scarfRed);
+    canvas.drawRRect(scarfBand, line);
+    final scarfEnd = Path()
+      ..moveTo(cx + r * 0.72, s * 0.545)
+      ..lineTo(cx + r * 1.15, s * 0.50)
+      ..lineTo(cx + r * 1.05, s * 0.62)
+      ..lineTo(cx + r * 0.78, s * 0.60)
+      ..close();
+    canvas.drawPath(scarfEnd, Paint()..color = _scarfRed);
+    canvas.drawPath(scarfEnd, line);
 
     final eyeY = headCenter.dy - r * 0.12;
     final eyeDx = r * 0.38;
     final white = Paint()..color = Colors.white;
     final black = Paint()..color = _ink;
-    final line = Paint()
-      ..color = _ink
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = math.max(2, r * 0.07)
-      ..strokeCap = StrokeCap.round;
 
     switch (mood) {
       case ChispaMood.cheer:
@@ -150,7 +213,9 @@ class _ChispaPainter extends CustomPainter {
           );
         }
         _mouthOpen(canvas, Offset(cx, headCenter.dy + r * 0.38), r * 0.22);
-        _heart(canvas, Offset(cx, headCenter.dy + r * 0.72), r * 0.16);
+        // Heart flame floats by the cheek now that the body is below.
+        _heart(canvas, Offset(cx + r * 1.05, headCenter.dy + r * 0.15),
+            r * 0.16);
       case ChispaMood.sleepy:
         // Calm closed eyes (∪) + tiny mouth + smoke rings.
         for (final dir in [-1.0, 1.0]) {
@@ -251,6 +316,26 @@ class _ChispaPainter extends CustomPainter {
         _eyesOpen(canvas, white, black, cx, eyeY, eyeDx, r);
         _smile(canvas, Offset(cx, headCenter.dy + r * 0.34), r * 0.24);
     }
+  }
+
+  /// One small orange wing, sticking out of the body's side.
+  void _wing(Canvas canvas, double cx, double s, double dir) {
+    final wing = Path()
+      ..moveTo(cx + dir * s * 0.20, s * 0.62)
+      ..quadraticBezierTo(
+          cx + dir * s * 0.38, s * 0.50, cx + dir * s * 0.34, s * 0.68)
+      ..quadraticBezierTo(
+          cx + dir * s * 0.30, s * 0.76, cx + dir * s * 0.20, s * 0.72)
+      ..close();
+    canvas.drawPath(wing, Paint()..color = _hornOrange);
+    canvas.drawPath(
+      wing,
+      Paint()
+        ..color = _ink
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = math.max(1.5, s * 0.02)
+        ..strokeJoin = StrokeJoin.round,
+    );
   }
 
   void _eyesOpen(Canvas canvas, Paint white, Paint black, double cx,

@@ -17,6 +17,8 @@ import '../settings.dart';
 import '../speech.dart';
 import '../stamps.dart';
 import '../theme.dart';
+import '../widgets/dashed_border.dart';
+import '../widgets/stamp_icon.dart';
 
 class StampsPage extends StatefulWidget {
   const StampsPage({
@@ -62,144 +64,26 @@ class _StampsPageState extends State<StampsPage> {
           ),
           const SizedBox(height: 16),
           _SectionTitle(
-            title: '世界邮票',
-            count: '${[for (var w = 1; w <= 8; w++) w].where((w) => hasWorldStamp(progress.starsById, w)).length} / 8',
-          ),
-          const SizedBox(height: 8),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.1,
-            ),
-            itemCount: graph.worlds.length,
-            itemBuilder: (context, index) {
-              final world = graph.worlds[index];
-              final stars = progress.worldStars(world.id, graph);
-              final completed = hasWorldStamp(progress.starsById, world.id);
-              return Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        completed ? Icons.mark_as_unread : Icons.drafts,
-                        size: 40,
-                        color: completed
-                            ? SpeakMindColors.amber
-                            : SpeakMindColors.fog,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'W${world.id} ${world.nameZh}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        completed
-                            ? '★ $stars/30 · 已获得'
-                            : '★ $stars/30 · 通关 Boss 关获得',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: SpeakMindColors.fog,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 20),
-          _SectionTitle(
-            title: '场景明信片',
-            count: '${earnedCards.length} / 30',
+            title: '旅行手帐',
+            count:
+                '${[for (var w = 1; w <= 8; w++) w].where((w) => hasWorldStamp(progress.starsById, w)).length} / 8 邮票 · ${earnedCards.length} / 30 明信片',
           ),
           const SizedBox(height: 4),
           const Text(
-            '点一张已获得的明信片，可以回听背面的 3 句地道说法。',
+            '左页是世界邮票，右页是这个世界的明信片。点一张已获得的明信片，可以回听背面的 3 句地道说法。',
             style: TextStyle(color: SpeakMindColors.fog),
           ),
           const SizedBox(height: 8),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.35,
+          for (final world in graph.worlds)
+            _JournalSpread(
+              world: world,
+              graph: graph,
+              stars: progress.worldStars(world.id, graph),
+              hasStamp: hasWorldStamp(progress.starsById, world.id),
+              postcardIds: _postcardsByWorld(graph)[world.id] ?? const [],
+              earnedCards: earnedCards,
+              onPostcard: (details) => _showPostcard(context, details),
             ),
-            itemCount: _allPostcardIds(graph).length,
-            itemBuilder: (context, index) {
-              final id = _allPostcardIds(graph)[index];
-              final earned = earnedCards.contains(id);
-              final details = postcardDetails(id, graph);
-              final isHidden = id.startsWith('hidden:');
-              return InkWell(
-                onTap: earned && details != null
-                    ? () => _showPostcard(context, details)
-                    : null,
-                borderRadius: BorderRadius.circular(16),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: earned
-                        ? BorderSide.none
-                        : const BorderSide(
-                            color: SpeakMindColors.fog,
-                            style: BorderStyle.solid,
-                            width: 1,
-                          ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          earned ? Icons.mail : Icons.mail_outline,
-                          size: 32,
-                          color: earned
-                              ? SpeakMindColors.actionGreen
-                              : SpeakMindColors.fog,
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          earned
-                              ? (details?.titleZh ?? id)
-                              : isHidden
-                                  ? '隐藏明信片'
-                                  : '未获得的明信片',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          earned
-                              ? '点开回听 3 句话'
-                              : isHidden
-                                  ? '完成一个隐藏关获得'
-                                  : '完成一条支线获得',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: SpeakMindColors.fog,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
           const SizedBox(height: 20),
           _SectionTitle(
             title: 'Chispa 贴纸',
@@ -219,39 +103,42 @@ class _StampsPageState extends State<StampsPage> {
             itemBuilder: (context, index) {
               final sticker = stickerCatalog[index];
               final earned = earnedStickers.contains(sticker.id);
+              final tile = Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      earned ? Icons.emoji_events : Icons.help_outline,
+                      size: 30,
+                      color: earned
+                          ? SpeakMindColors.amber
+                          : SpeakMindColors.fog,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      earned ? sticker.name : '？',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      sticker.how,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: SpeakMindColors.fog,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+              // Unearned stickers show only a dashed silhouette (doc p.12).
+              if (!earned) return DashedBorder(child: tile);
               return Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        earned ? Icons.emoji_events : Icons.help_outline,
-                        size: 30,
-                        color: earned
-                            ? SpeakMindColors.amber
-                            : SpeakMindColors.fog,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        earned ? sticker.name : '？',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        sticker.how,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: SpeakMindColors.fog,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                child: tile,
               );
             },
           ),
@@ -260,20 +147,21 @@ class _StampsPageState extends State<StampsPage> {
     );
   }
 
-  /// All postcard ids in a stable order: routes first (by world, then
-  /// route), then hidden levels (by world).
-  List<String> _allPostcardIds(LevelGraph graph) {
-    final ids = <String>[];
+  /// Postcard ids grouped by world, in the same stable order as
+  /// [_allPostcardIds]: routes first, then hidden levels.
+  Map<int, List<String>> _postcardsByWorld(LevelGraph graph) {
+    final byWorld = <int, List<String>>{};
     for (final level in graph.levels) {
       if (level.kind != LevelKind.main || !level.isFork) continue;
       for (final route in level.branches ?? const <LevelBranch>[]) {
-        ids.add('route:${level.world}:${route.route}');
+        (byWorld[level.world] ??= []).add('route:${level.world}:${route.route}');
       }
     }
     for (final hidden in graph.levels.where((l) => l.kind == LevelKind.hidden)) {
-      ids.add('hidden:${hidden.id}');
+      final world = int.tryParse(hidden.id.substring(0, 1)) ?? 1;
+      (byWorld[world] ??= []).add('hidden:${hidden.id}');
     }
-    return ids;
+    return byWorld;
   }
 
   Future<void> _showPostcard(BuildContext context, Postcard card) async {
@@ -317,6 +205,179 @@ class _StampsPageState extends State<StampsPage> {
   }
 }
 
+/// One world's journal spread (doc p.12): left page the world stamp,
+/// right page that world's postcards, with a book spine between them.
+/// Unobtained slots show only a dashed silhouette; hidden postcards never
+/// reveal their name before they are earned.
+class _JournalSpread extends StatelessWidget {
+  const _JournalSpread({
+    required this.world,
+    required this.graph,
+    required this.stars,
+    required this.hasStamp,
+    required this.postcardIds,
+    required this.earnedCards,
+    required this.onPostcard,
+  });
+
+  final WorldInfo world;
+  final LevelGraph graph;
+  final int stars;
+  final bool hasStamp;
+  final List<String> postcardIds;
+  final Set<String> earnedCards;
+  final void Function(Postcard) onPostcard;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(width: 116, child: _stamp()),
+                // Book spine.
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Container(
+                    width: 1,
+                    color: SpeakMindColors.fog.withValues(alpha: 0.6),
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 0; i < postcardIds.length; i++) ...[
+                        if (i > 0) const SizedBox(height: 8),
+                        _postcard(postcardIds[i]),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Left page: the world stamp. Earned stamps sit on a perforated
+  /// (dashed-inner-border) card; unobtained ones are a dashed silhouette.
+  Widget _stamp() {
+    final inner = Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          StampIcon(
+            size: 36,
+            color: hasStamp
+                ? SpeakMindColors.amber
+                : SpeakMindColors.fog,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'W${world.id} ${world.nameZh}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(
+            hasStamp ? '★ $stars/30 · 已获得' : '★ $stars/30 · 通关 Boss 关获得',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12.5,
+              color: SpeakMindColors.fog,
+            ),
+          ),
+        ],
+      ),
+    );
+    if (!hasStamp) return DashedBorder(child: inner);
+    return DashedBorder(
+      color: SpeakMindColors.amber,
+      child: Container(
+        color: SpeakMindColors.amber.withValues(alpha: 0.12),
+        child: inner,
+      ),
+    );
+  }
+
+  /// Right page: one postcard row (icon + title + condition).
+  Widget _postcard(String id) {
+    final earned = earnedCards.contains(id);
+    final details = postcardDetails(id, graph);
+    final isHidden = id.startsWith('hidden:');
+    final inner = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      child: Row(
+        children: [
+          PostcardIcon(
+            size: 30,
+            color: earned
+                ? SpeakMindColors.actionGreen
+                : SpeakMindColors.fog,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  earned
+                      ? (details?.titleZh ?? id)
+                      : isHidden
+                          ? '隐藏明信片'
+                          : '未获得的明信片',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  earned
+                      ? '点开回听 3 句话'
+                      : isHidden
+                          ? '完成一个隐藏关获得'
+                          : '完成一条支线获得',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    color: SpeakMindColors.fog,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    if (!earned) return DashedBorder(child: inner);
+    return InkWell(
+      onTap: details != null ? () => onPostcard(details) : null,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: SpeakMindColors.actionGreen.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: SpeakMindColors.actionGreen.withValues(alpha: 0.4),
+          ),
+        ),
+        child: inner,
+      ),
+    );
+  }
+}
+
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle({required this.title, required this.count});
 
@@ -329,7 +390,7 @@ class _SectionTitle extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(width: 8),
         Text(count, style: const TextStyle(color: SpeakMindColors.fog)),

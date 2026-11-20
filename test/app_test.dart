@@ -206,18 +206,18 @@ void main() {
   test('each language keeps its own sentences', () async {
     SharedPreferences.setMockInitialValues({});
     final settings = await SettingsStore.load();
-    expect(settings.language.code, 'en');
-
-    await settings.addSentence('My English sentence.');
-    await settings.setLanguage(languages.last);
     expect(settings.language.code, 'es');
-    expect(settings.sentences, builtInSentencesEs);
 
     await settings.addSentence('Mi frase.');
-    expect(settings.sentences.first, 'Mi frase.');
-    await settings.setLanguage(languages.first);
+    await settings.setLanguage(languages.last);
+    expect(settings.language.code, 'en');
+    expect(settings.sentences, builtInSentences);
+
+    await settings.addSentence('My English sentence.');
     expect(settings.sentences.first, 'My English sentence.');
-    expect(settings.sentences, isNot(contains('Mi frase.')));
+    await settings.setLanguage(languages.first);
+    expect(settings.sentences.first, 'Mi frase.');
+    expect(settings.sentences, isNot(contains('My English sentence.')));
   });
 
   test('custom sentences are stored and listed first', () async {
@@ -225,13 +225,13 @@ void main() {
     final settings = await SettingsStore.load();
 
     expect(settings.serverUrl, SettingsStore.defaultServerUrl);
-    await settings.addSentence('  My own sentence.  ');
-    await settings.addSentence('My own sentence.');
-    expect(settings.sentences.first, 'My own sentence.');
+    await settings.addSentence('  Mi frase propia.  ');
+    await settings.addSentence('Mi frase propia.');
+    expect(settings.sentences.first, 'Mi frase propia.');
     expect(settings.customSentences, hasLength(1));
 
-    await settings.removeSentence('My own sentence.');
-    expect(settings.sentences, builtInSentences);
+    await settings.removeSentence('Mi frase propia.');
+    expect(settings.sentences, builtInSentencesEs);
   });
 
   testWidgets('ResultView shows scores and the phonemes of the tapped word', (tester) async {

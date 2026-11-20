@@ -17,6 +17,7 @@ import '../levels.dart';
 import '../progress.dart';
 import '../settings.dart';
 import '../theme.dart';
+import '../widgets/world_vector_map.dart';
 import 'branch_page.dart';
 import 'level_page.dart';
 
@@ -153,10 +154,7 @@ class _StatsRow extends StatelessWidget {
       children: [
         _Stat(label: '等级', value: 'Lv.${progress.travellerLevel}'),
         _Stat(label: 'XP', value: '${progress.xp}'),
-        _Stat(
-          label: '星星',
-          value: '${progress.totalStars} / ${graph.totalLevels * 3}',
-        ),
+        _Stat(label: '连续天数', value: '${progress.streakDays} 天'),
       ],
     );
   }
@@ -182,7 +180,7 @@ class _Stat extends StatelessWidget {
         ),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: SpeakMindColors.fog),
+          style: const TextStyle(fontSize: 12.5, color: SpeakMindColors.fog),
         ),
       ],
     );
@@ -218,11 +216,7 @@ class _ContinueCard extends StatelessWidget {
                       children: [
                         Text(
                           '继续：${node.id} ${node.title}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: SpeakMindText.spanish(size: 16, color: Colors.white),
                         ),
                         Text(
                           '${node.titleZh} · ${node.cefr}',
@@ -288,7 +282,7 @@ class _WorldSection extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      '✦ $mascotName 发现了秘密地点：${node?.titleZh ?? found}！',
+                      '★ $mascotName 发现了秘密地点：${node?.titleZh ?? found}！',
                     ),
                   ),
                 );
@@ -298,18 +292,26 @@ class _WorldSection extends StatelessWidget {
         if (!unlocked)
           _FogCard(world: world)
         else ...[
-          for (var i = 0; i < mainline.length; i++) ...[
-            _MainlineNode(
-              node: mainline[i],
-              index: i,
-              progress: progress,
-              graph: graph,
-              onOpenLevel: onOpenLevel,
-              onLocked: onLocked,
+          WorldVectorMap(
+            world: world,
+            nodes: mainline,
+            graph: graph,
+            progress: progress,
+            nodeBuilder: (node, i, isCurrent) => _LevelNodeButton(
+              node: node,
+              label: '${i + 1}',
+              unlocked: progress.isUnlocked(node.id),
+              stars: progress.stars(node.id),
+              isCurrent: isCurrent,
+              isHidden: false,
+              onOpen: onOpenLevel,
+              onLocked: () => onLocked('先完成上一关才能解锁 ${node.id}'),
             ),
-            if (mainline[i].isFork)
+          ),
+          for (final node in mainline)
+            if (node.isFork)
               _ForkCard(
-                node: mainline[i],
+                node: node,
                 graph: graph,
                 progress: progress,
                 settings: settings,
@@ -317,7 +319,40 @@ class _WorldSection extends StatelessWidget {
                 onOpenLevel: onOpenLevel,
                 onLocked: onLocked,
               ),
-          ],
+          // Revisit letters (F4): a completed level that a `revisit`
+          // hidden trigger is attached to has a letter waiting — reopening
+          // it discovers the hidden level. The scene itself doesn't show
+          // them, so they are listed under it.
+          for (final node in mainline)
+            if (progress.isCompleted(node.id) &&
+                revisitSourceLevels(graph).contains(node.id))
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: InkWell(
+                  onTap: () => onOpenLevel(node),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: SpeakMindColors.amber.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: SpeakMindColors.amber.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Text('✉', style: TextStyle(fontSize: 18)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text('${node.id} 有封信等你回去看看'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           for (final hidden in graph.hiddenOfWorld(world.id))
             if (progress.isVisible(hidden, graph))
               _HiddenNode(
@@ -358,7 +393,7 @@ class _MapEggPoint extends StatelessWidget {
           ),
           child: const Row(
             children: [
-              Text('✦', style: TextStyle(fontSize: 18)),
+              Text('★', style: TextStyle(fontSize: 18)),
               SizedBox(width: 8),
               Expanded(
                 child: Text('这里好像有东西在闪……点一点看看'),
@@ -402,16 +437,12 @@ class _WorldHeader extends StatelessWidget {
             children: [
               Text(
                 '${world.name} · ${world.nameZh}',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Text(
                 '${world.theme} · ${world.grammar}',
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.5,
                   color: SpeakMindColors.fog,
                 ),
               ),
@@ -470,71 +501,6 @@ class _FogCard extends StatelessWidget {
   }
 }
 
-class _MainlineNode extends StatelessWidget {
-  const _MainlineNode({
-    required this.node,
-    required this.index,
-    required this.progress,
-    required this.graph,
-    required this.onOpenLevel,
-    required this.onLocked,
-  });
-
-  final LevelNode node;
-  final int index;
-  final ProgressStore progress;
-  final LevelGraph graph;
-  final void Function(LevelNode) onOpenLevel;
-  final void Function(String) onLocked;
-
-  @override
-  Widget build(BuildContext context) {
-    final unlocked = progress.isUnlocked(node.id);
-    final stars = progress.stars(node.id);
-    final current = progress.currentLevel(graph)?.id == node.id;
-    // Zigzag path: alternate left / right down the world.
-    final alignment = index.isEven
-        ? Alignment.centerLeft
-        : Alignment.centerRight;
-    // Revisit envelope (F4): a completed level that a `revisit` hidden
-    // trigger is attached to has a letter waiting — reopening it
-    // discovers the hidden level.
-    final hasLetter = progress.isCompleted(node.id) &&
-        revisitSourceLevels(graph).contains(node.id);
-    return Align(
-      alignment: alignment,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 24),
-        child: Column(
-          children: [
-            _LevelNodeButton(
-              node: node,
-              label: '${index + 1}',
-              unlocked: unlocked,
-              stars: stars,
-              isCurrent: current,
-              isHidden: false,
-              onOpen: onOpenLevel,
-              onLocked: () => onLocked('先完成上一关才能解锁 ${node.id}'),
-            ),
-            if (hasLetter)
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  '✉ 有封信等你回去看看',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _HiddenNode extends StatelessWidget {
   const _HiddenNode({
     required this.node,
@@ -554,7 +520,7 @@ class _HiddenNode extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: _LevelNodeButton(
           node: node,
-          label: '✦',
+          label: '★',
           unlocked: true,
           stars: progress.stars(node.id),
           isCurrent: false,
@@ -648,12 +614,12 @@ class _LevelNodeButton extends StatelessWidget {
           SizedBox(
             width: 110,
             child: Text(
-              isHidden ? '✦ ${node.titleZh}' : node.titleZh,
+              isHidden ? '★ ${node.titleZh}' : node.titleZh,
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 12.5,
                 color: unlocked
                     ? Theme.of(context).colorScheme.onSurface
                     : Theme.of(context).colorScheme.onSurfaceVariant,
